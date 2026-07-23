@@ -1,0 +1,10 @@
+{
+  "name": "chunxiao-health-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node serve-preview.mjs",
+    "start": "node serve-preview.mjs",
+    "check": "node --check app.js && node --check serve-preview.mjs"
+  }
+}

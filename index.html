@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>春晓健康管家 - 全部客户</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <svg class="svg-sprite" aria-hidden="true">
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 21h10M9 18v3m6-3v3M7 8h4v4H7zm6 0h4v4h-4z"/></symbol>
+      <symbol id="i-task" viewBox="0 0 24 24"><path d="M14 4h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a3 3 0 0 1 3-3h2"/><path d="M8 14.5 15.5 7l2 2L10 16.5 7 17Z"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4"/><path d="M4.5 21v-1.4a6.8 6.8 0 0 1 6.8-6.8h1.4a6.8 6.8 0 0 1 6.8 6.8V21Z"/><path d="M9 17h6"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8m-8 4h6m-6 4h5"/></symbol>
+      <symbol id="i-box" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M7 6V4h10v2M7 11h10M12 9v7m-2-2h4"/></symbol>
+      <symbol id="i-ai" viewBox="0 0 24 24"><path d="M8 4c2 0 4 2 4 4 0 2-2 4-4 4-2 0-4-2-4-4 0-2 2-4 4-4Zm8 8c2 0 4 2 4 4s-2 4-4 4-4-2-4-4 2-4 4-4Z"/><path d="m8 12 4 4m0-8 4 4M5 19l14-14"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.16.4.37.74.6 1 .3.34.68.53 1.1.6h.1v4h-.1a1.7 1.7 0 0 0-1.7.4Z"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 13h4"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+      <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8Z"/><path d="M17 17h5m-2.5-2.5v5"/></symbol>
+      <symbol id="i-columns" viewBox="0 0 24 24"><rect x="4" y="3" width="13" height="17" rx="2"/><path d="M8 3v17m4-17v10"/><circle cx="18" cy="17" r="4"/><path d="M18 15v4m-2-2h4"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M5 7h14M8 12h11M5 17h14"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5Z"/><circle cx="12" cy="12" r="2"/><path d="m4 4 16 16"/></symbol>
+    </svg>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark"><i></i><i></i><i></i><i></i></div>
+          <span>春晓健康管家</span>
+        </div>
+        <nav class="main-nav" aria-label="主导航">
+          <button class="nav-item dashboard" data-section="工作台"><svg><use href="#i-grid"/></svg><span>工作台</span></button>
+
+          <div class="nav-group open">
+            <button class="nav-item nav-toggle" data-section="任务管理" aria-expanded="true"><svg><use href="#i-task"/></svg><span>任务管理</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button data-page="健康任务">健康任务</button><button data-page="预警任务">预警任务</button><button data-page="打卡评价">打卡评价</button><button data-page="评价评估">评价评估</button>
+            </div></div>
+          </div>
+
+          <div class="nav-group open current">
+            <button class="nav-item nav-toggle" data-section="客户管理" aria-expanded="true"><svg><use href="#i-user"/></svg><span>客户管理</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button class="active" data-page="全部客户">全部客户</button><button data-page="团队客户">团队客户</button>
+            </div></div>
+          </div>
+
+          <div class="nav-group open">
+            <button class="nav-item nav-toggle" data-section="方案与内容" aria-expanded="true"><svg><use href="#i-file"/></svg><span>方案与内容</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button data-page="方案管理">方案管理</button><button data-page="量表管理">量表管理</button><button data-page="评估报告">评估报告</button><button data-page="文章管理">文章管理</button><button data-page="知识库">知识库</button>
+            </div></div>
+          </div>
+
+          <div class="nav-group">
+            <button class="nav-item nav-toggle" data-section="服务包管理" aria-expanded="false"><svg><use href="#i-box"/></svg><span>服务包管理</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button data-page="服务包管理">服务包管理</button><button data-page="订单管理">订单管理</button><button data-page="交易记录">交易记录</button>
+            </div></div>
+          </div>
+
+          <div class="nav-group">
+            <button class="nav-item nav-toggle" data-section="AI医助" aria-expanded="false"><svg><use href="#i-ai"/></svg><span>AI医助</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button data-page="基础配置">基础配置</button><button data-page="数据概览">数据概览</button><button data-page="会话分析">会话分析</button><button data-page="问答统计">问答统计</button><button data-page="召回测试">召回测试</button>
+            </div></div>
+          </div>
+
+          <div class="nav-group">
+            <button class="nav-item nav-toggle" data-section="系统管理" aria-expanded="false"><svg><use href="#i-settings"/></svg><span>系统管理</span><b>⌃</b></button>
+            <div class="nav-children"><div class="subnav">
+              <button data-page="团队管理">团队管理</button><button data-page="科室管理">科室管理</button><button data-page="人员管理">人员管理</button><button data-page="服务管理">服务管理</button><button data-page="系统角色">系统角色</button><button data-page="设备管理">设备管理</button><button data-page="看板配置">看板配置</button>
+            </div></div>
+          </div>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="notice"><svg><use href="#i-bell"/></svg><span>消息通知</span><em>3</em></button>
+          <button class="profile"><span class="avatar">👨🏻‍⚕️</span><strong>羊医生</strong><span>›</span></button>
+          <button class="collapse" id="collapseBtn" aria-label="收起侧栏"><svg><use href="#i-menu"/></svg></button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <h1 id="pageTitle">全部客户</h1>
+        <section class="customer-card">
+          <div class="toolbar">
+            <label class="search-box"><svg><use href="#i-search"/></svg><input id="searchInput" type="search" placeholder="客户 姓名/就诊卡号/手机号码" /></label>
+            <label class="team-select"><select id="teamSelect"><option value="">请选择患者已加入团队</option><option>90天减重管理</option><option>测试团队</option><option>测试团队2</option></select></label>
+            <label class="user-type-select"><select id="userTypeSelect"><option value="">请选择用户类型</option><option>公卫用户</option><option>医院用户</option><option>公卫及医院用户</option></select></label>
+            <button class="tool-button" id="moreFilter"><svg><use href="#i-filter"/></svg>更多筛选</button>
+            <button class="icon-button" id="columnButton" aria-label="管理显示列"><svg><use href="#i-columns"/></svg></button>
+          </div>
+          <div class="advanced-filter" id="advancedFilter">
+            <select id="genderFilter"><option value="">全部性别</option><option value="男">男</option><option value="女">女</option></select>
+            <input id="minAge" type="number" min="0" placeholder="最小年龄" />
+            <input id="maxAge" type="number" min="0" placeholder="最大年龄" />
+            <button id="resetFilter">重置筛选</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr id="tableHead"></tr></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState"><span>没有找到匹配的客户</span><button id="clearSearch">清空筛选</button></div>
+          </div>
+          <div class="pagination">
+            <span id="totalText">共 28 条</span>
+            <button class="page-arrow" id="prevPage">‹</button>
+            <div id="pageButtons"></div>
+            <button class="page-arrow" id="nextPage">›</button>
+            <select id="pageSize"><option value="10">10 条/页</option><option value="20">20 条/页</option></select>
+            <span>跳至</span><input id="jumpPage" type="number" min="1" /><span>页</span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h2 id="modalTitle">选择分组</h2><button id="closeModal">×</button></div><div class="modal-body" id="modalBody"></div></div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
