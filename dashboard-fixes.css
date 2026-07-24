@@ -1,0 +1,13 @@
+.main-content.dashboard-mode > .customer-card[hidden],
+.main-content.dashboard-mode > #pageTitle[hidden] {
+  display: none !important;
+}
+
+.age-donut::after {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.dash-toolbar h1 {
+  flex: 0 0 155px;
+}

@@ -6,5 +6,8 @@
     "dev": "node serve-preview.mjs",
     "start": "node serve-preview.mjs",
     "check": "node --check app.js && node --check serve-preview.mjs"
+  },
+  "dependencies": {
+    "echarts": "^6.0.0"
   }
 }
