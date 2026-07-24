@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>春晓健康管家 - 全部客户</title>
+    <title>春晓健康管家 - 全部患者</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./recipe.css" />
   </head>
@@ -41,9 +41,9 @@
           </div>
 
           <div class="nav-group open current">
-            <button class="nav-item nav-toggle" data-section="客户管理" aria-expanded="true"><svg><use href="#i-user"/></svg><span>客户管理</span><b>⌃</b></button>
+            <button class="nav-item nav-toggle" data-section="患者管理" aria-expanded="true"><svg><use href="#i-user"/></svg><span>患者管理</span><b>⌃</b></button>
             <div class="nav-children"><div class="subnav">
-              <button class="active" data-page="全部客户">全部客户</button><button data-page="团队客户">团队客户</button>
+              <button class="active" data-page="全部患者">全部患者</button><button data-page="团队患者">团队患者</button>
             </div></div>
           </div>
 
@@ -83,10 +83,10 @@
       </aside>
 
       <main class="main-content">
-        <h1 id="pageTitle">全部客户</h1>
+        <h1 id="pageTitle">全部患者</h1>
         <section class="customer-card">
           <div class="toolbar">
-            <label class="search-box"><svg><use href="#i-search"/></svg><input id="searchInput" type="search" placeholder="客户 姓名/就诊卡号/手机号码" /></label>
+            <label class="search-box"><svg><use href="#i-search"/></svg><input id="searchInput" type="search" placeholder="患者 姓名/就诊卡号/手机号码" /></label>
             <label class="team-select"><select id="teamSelect"><option value="">请选择患者已加入团队</option><option>90天减重管理</option><option>测试团队</option><option>测试团队2</option></select></label>
             <label class="user-type-select"><select id="userTypeSelect"><option value="">请选择用户类型</option><option>公卫用户</option><option>医院用户</option><option>公卫及医院用户</option></select></label>
             <button class="tool-button" id="moreFilter"><svg><use href="#i-filter"/></svg>更多筛选</button>
@@ -103,7 +103,7 @@
               <thead><tr id="tableHead"></tr></thead>
               <tbody id="tableBody"></tbody>
             </table>
-            <div class="empty-state" id="emptyState"><span>没有找到匹配的客户</span><button id="clearSearch">清空筛选</button></div>
+            <div class="empty-state" id="emptyState"><span>没有找到匹配的患者</span><button id="clearSearch">清空筛选</button></div>
           </div>
           <div class="pagination">
             <span id="totalText">共 28 条</span>

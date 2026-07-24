@@ -66,8 +66,8 @@ function render(){
 }
 function showToast(message){const t=$('#toast');t.textContent=message;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),1800)}
 function openModal(name,type='group'){
-  $('#modalTitle').textContent=type==='record'?`${name}的客户档案`:`为${name}选择分组`;
-  $('#modalBody').innerHTML=type==='record'?`<p>姓名：${name}</p><p>客户健康档案详情已载入。</p>`:`<div class="team-options">${['90天减重管理','测试团队','测试团队2'].map(t=>`<label class="team-option"><input type="radio" name="team" value="${t}"><span>${t}</span></label>`).join('')}</div>`;
+  $('#modalTitle').textContent=type==='record'?`${name}的患者档案`:`为${name}选择分组`;
+  $('#modalBody').innerHTML=type==='record'?`<p>姓名：${name}</p><p>患者健康档案详情已载入。</p>`:`<div class="team-options">${['90天减重管理','测试团队','测试团队2'].map(t=>`<label class="team-option"><input type="radio" name="team" value="${t}"><span>${t}</span></label>`).join('')}</div>`;
   $('#modalBackdrop').classList.add('show');
 }
 
