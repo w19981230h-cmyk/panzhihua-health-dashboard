@@ -487,3 +487,270 @@
   .recipe-pagination>span:first-child{display:none}
   .recipe-pages{margin-left:0;overflow-x:auto}
 }
+
+/* 食谱管理页与客户列表保持同一套页面结构和颜色体系 */
+.main-content.recipe-mode{
+  padding:0 20px 16px;
+  background:#f3f6ff;
+  overflow:hidden;
+}
+
+.main-content.recipe-mode>#pageTitle{
+  display:flex!important;
+  height:62px;
+  flex:0 0 62px;
+  color:#102a67;
+  font-size:17px;
+  font-weight:700;
+}
+
+.main-content.recipe-mode>.customer-card,
+.main-content.recipe-mode>#performanceDashboard{
+  display:none!important;
+}
+
+.recipe-page{
+  flex:1;
+  width:100%;
+  height:auto;
+  min-height:0;
+  padding:14px;
+  gap:0;
+  overflow:hidden;
+  background:#fff;
+  border:0;
+  border-radius:12px;
+  box-shadow:0 1px 2px rgba(32,60,120,.01);
+}
+
+.recipe-filter-card,
+.recipe-list-card{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+.recipe-filter-card{
+  flex:0 0 auto;
+  padding:0;
+}
+
+.recipe-toolbar{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.recipe-toolbar .recipe-filter>span,
+.recipe-extra-filters .recipe-filter>span{
+  display:none;
+}
+
+.recipe-toolbar .recipe-name-filter{
+  width:284px;
+  flex:0 0 284px;
+}
+
+.recipe-toolbar .recipe-filter{
+  width:250px;
+  flex:0 0 250px;
+}
+
+.recipe-search,
+.recipe-select-wrap{
+  height:36px;
+  border-color:#e6eaf1;
+  border-radius:4px;
+}
+
+.recipe-search input,
+.recipe-select-wrap select{
+  color:#657089;
+  font-size:14px;
+}
+
+.recipe-search input::placeholder{
+  color:#c0c6d2;
+}
+
+.recipe-search svg{
+  width:17px;
+  height:17px;
+  top:9px;
+  stroke:#aab2c1;
+}
+
+.recipe-more-button,
+.recipe-column-button{
+  height:36px;
+  flex:0 0 auto;
+  border:1px solid #e6eaf1;
+  border-radius:4px;
+  background:#fff;
+  color:#43516b;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.recipe-more-button{
+  padding:0 12px;
+  gap:6px;
+  font-size:14px;
+}
+
+.recipe-column-button{
+  width:40px;
+  padding:0;
+}
+
+.recipe-more-button svg,
+.recipe-column-button svg{
+  width:17px;
+  height:17px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.recipe-more-button:hover,
+.recipe-column-button:hover{
+  border-color:#aab8dd;
+  color:#1747f5;
+}
+
+.recipe-more-button.expanded{
+  border-color:#9aacf0;
+  color:#1747f5;
+  background:#f7f9ff;
+}
+
+.recipe-create-button{
+  height:36px;
+  min-width:108px;
+  margin:0 0 0 auto;
+  border-radius:4px;
+  background:#1747f5;
+  box-shadow:none;
+}
+
+.recipe-extra-filters{
+  min-height:48px;
+  padding-top:8px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-top:1px solid #edf0f5;
+}
+
+.recipe-extra-filters[hidden]{
+  display:none;
+}
+
+.recipe-extra-filters .recipe-filter{
+  width:220px;
+  flex:0 0 220px;
+}
+
+.recipe-list-card{
+  flex:1;
+  min-height:0;
+  padding:0;
+}
+
+.recipe-table-wrap{
+  border-radius:5px 5px 0 0;
+}
+
+.recipe-table thead tr{
+  height:56px;
+  background:#f4f6f9;
+}
+
+.recipe-table th{
+  padding:0 10px;
+  color:#495770;
+  font-size:14px;
+  font-weight:500;
+  border-bottom:0;
+}
+
+.recipe-table tbody tr{
+  height:76px;
+  border-bottom:1px solid #edf0f4;
+}
+
+.recipe-table td{
+  padding:0 10px;
+  color:#667590;
+  font-size:14px;
+}
+
+.recipe-thumb{
+  width:54px;
+  height:54px;
+  border-radius:4px;
+}
+
+.recipe-title{
+  color:#53627c;
+  font-size:14px;
+  font-weight:400;
+}
+
+.recipe-diseases span{
+  height:25px;
+  color:#667590;
+  border-color:#e0e5ed;
+  font-size:12px;
+}
+
+.recipe-tag{
+  min-height:25px;
+  font-size:12px;
+}
+
+.recipe-actions button{
+  color:#1747f5;
+  font-size:13px;
+}
+
+.recipe-pagination{
+  height:54px;
+  flex-basis:54px;
+  color:#59657a;
+}
+
+.recipe-pages button.active{
+  border-color:#1747f5;
+  background:#1747f5;
+}
+
+@media(max-width:1280px){
+  .recipe-toolbar{
+    flex-wrap:wrap;
+    padding-bottom:8px;
+  }
+  .recipe-toolbar .recipe-name-filter,
+  .recipe-toolbar .recipe-filter{
+    width:calc(33.333% - 8px);
+    flex-basis:calc(33.333% - 8px);
+  }
+  .recipe-create-button{
+    margin-left:0;
+  }
+}
+
+@media(max-width:900px){
+  .main-content.recipe-mode{padding:0 10px 10px}
+  .recipe-page{padding:10px}
+  .recipe-toolbar .recipe-name-filter,
+  .recipe-toolbar .recipe-filter{
+    width:100%;
+    flex-basis:100%;
+  }
+}

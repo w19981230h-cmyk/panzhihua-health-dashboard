@@ -78,12 +78,12 @@ const recipeState = {
   page: 1
 };
 
-function recipeSelect(label, id, options) {
+function recipeSelect(label, id, options, compact = false) {
   return `<label class="recipe-filter">
     <span>${label}</span>
     <div class="recipe-select-wrap">
       <select id="${id}">
-        <option value="">全部</option>
+        <option value="">${compact ? `请选择${label}` : '全部'}</option>
         ${options.map(option => `<option value="${option}">${option}</option>`).join('')}
       </select>
       <i aria-hidden="true"></i>
@@ -98,7 +98,7 @@ function buildRecipePage() {
   page.hidden = true;
   page.innerHTML = `
     <section class="recipe-filter-card">
-      <div class="recipe-filter-grid">
+      <div class="recipe-toolbar">
         <label class="recipe-filter recipe-name-filter">
           <span>食谱名称</span>
           <div class="recipe-search">
@@ -106,20 +106,22 @@ function buildRecipePage() {
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
           </div>
         </label>
-        ${recipeSelect('食谱分类', 'recipeCategory', ['菜品', '汤粥', '主食'])}
-        ${recipeSelect('适用餐次', 'recipeMeal', ['早餐', '午餐', '晚餐'])}
-        ${recipeSelect('适用病种', 'recipeDisease', ['高血压', '糖尿病', '高脂血症', '肥胖'])}
-        ${recipeSelect('健康标签', 'recipeHealthTag', ['低盐', '低糖', '低脂', '高蛋白', '高纤维', '低GI', '补钙'])}
-        ${recipeSelect('食谱来源', 'recipeSource', ['系统预置', '用户新建'])}
-        ${recipeSelect('启用状态', 'recipeEnabled', ['启用', '停用'])}
+        ${recipeSelect('食谱分类', 'recipeCategory', ['菜品', '汤粥', '主食'], true)}
+        ${recipeSelect('适用餐次', 'recipeMeal', ['早餐', '午餐', '晚餐'], true)}
+        <button class="recipe-more-button" id="recipeMoreFilters" type="button" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8Z"></path><path d="M17 17h5m-2.5-2.5v5"></path></svg>
+          <span>更多筛选</span>
+        </button>
+        <button class="recipe-column-button" id="recipeColumnButton" type="button" aria-label="管理显示列">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="13" height="17" rx="2"></rect><path d="M8 3v17m4-17v10"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v4m-2-2h4"></path></svg>
+        </button>
         <button class="recipe-create-button" id="recipeCreate" type="button"><b>＋</b>新建食谱</button>
       </div>
-      <div class="recipe-more-row">
-        <button id="recipeMoreFilters" type="button" aria-expanded="false">
-          <span class="recipe-more-arrow">›</span>
-          <strong>展开更多筛选</strong>
-          <span class="recipe-more-chevron">⌄</span>
-        </button>
+      <div class="recipe-extra-filters" id="recipeExtraFilters" hidden>
+        ${recipeSelect('适用病种', 'recipeDisease', ['高血压', '糖尿病', '高脂血症', '肥胖'], true)}
+        ${recipeSelect('健康标签', 'recipeHealthTag', ['低盐', '低糖', '低脂', '高蛋白', '高纤维', '低GI', '补钙'], true)}
+        ${recipeSelect('食谱来源', 'recipeSource', ['系统预置', '用户新建'], true)}
+        ${recipeSelect('启用状态', 'recipeEnabled', ['启用', '停用'], true)}
       </div>
     </section>
 
@@ -241,7 +243,8 @@ function setRecipeMode(enabled) {
   recipePage.hidden = !enabled;
   main.classList.toggle('recipe-mode', enabled);
   if (enabled) {
-    document.querySelector('#pageTitle').hidden = true;
+    document.querySelector('#pageTitle').textContent = '食谱管理';
+    document.querySelector('#pageTitle').hidden = false;
     document.querySelector('.customer-card').hidden = true;
     const dashboard = document.querySelector('#performanceDashboard');
     if (dashboard) dashboard.hidden = true;
@@ -270,8 +273,16 @@ recipePage.querySelector('#recipeMoreFilters').addEventListener('click', event =
   const button = event.currentTarget;
   const expanded = button.getAttribute('aria-expanded') === 'true';
   button.setAttribute('aria-expanded', String(!expanded));
-  button.querySelector('strong').textContent = expanded ? '展开更多筛选' : '收起更多筛选';
+  button.querySelector('span').textContent = expanded ? '更多筛选' : '收起筛选';
   button.classList.toggle('expanded', !expanded);
+  recipePage.querySelector('#recipeExtraFilters').hidden = expanded;
+});
+
+recipePage.querySelector('#recipeColumnButton').addEventListener('click', () => {
+  const toast = document.querySelector('#toast');
+  toast.textContent = '已打开显示列设置';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
 });
 
 recipePage.querySelector('#recipeCreate').addEventListener('click', () => {
