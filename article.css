@@ -388,3 +388,26 @@
     width: 220px;
   }
 }
+
+/* 固定操作列 */
+.article-table th:last-child,
+.article-table td:last-child {
+  position: sticky;
+  right: 0;
+}
+
+.article-table th:last-child {
+  z-index: 5;
+  background: #f4f6f9;
+  box-shadow: -10px 0 14px -14px rgba(33, 55, 96, .55);
+}
+
+.article-table td:last-child {
+  z-index: 2;
+  background: #fff;
+  box-shadow: -10px 0 14px -14px rgba(33, 55, 96, .42);
+}
+
+.article-table tbody tr:hover td:last-child {
+  background: #fafcff;
+}
