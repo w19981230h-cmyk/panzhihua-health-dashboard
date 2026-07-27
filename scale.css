@@ -11,7 +11,7 @@
 .scale-page {
   min-height: 0;
   flex: 1;
-  margin: 0 16px 16px;
+  margin: 5px 0 16px;
 }
 
 .scale-page[hidden] {
@@ -20,7 +20,7 @@
 
 .scale-card {
   position: relative;
-  min-height: calc(100vh - 82px);
+  min-height: calc(100vh - 87px);
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -292,7 +292,7 @@
 }
 
 .scale-expand:not(.has-children) i {
-  opacity: 0;
+  opacity: 1;
 }
 
 .scale-child-row {

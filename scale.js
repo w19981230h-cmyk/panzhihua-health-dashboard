@@ -1,6 +1,6 @@
 const medicalScaleCatalog = [
   ['高血压',[
-    'AHA PREVENT-CVD 10年/30年心血管风险评估',
+    '高血压患者随访管理量表',
     'ASCVD汇总队列方程（PCE）10年风险评估',
     'Framingham一般心血管风险评分',
     'Hill-Bone高血压治疗依从性量表',
@@ -118,7 +118,7 @@ scaleRows[0].children=[{
   children:undefined
 }];
 
-const scaleState = {query:'',page:1,size:10,expanded:new Set([0])};
+const scaleState = {query:'',page:1,size:20,expanded:new Set([0])};
 
 function buildScalePage(){
   const page=document.createElement('section');
@@ -158,7 +158,7 @@ function buildScalePage(){
         <button class="scale-page-arrow" id="scalePrev" type="button" aria-label="上一页">‹</button>
         <div class="scale-page-numbers" id="scalePageNumbers"></div>
         <button class="scale-page-arrow" id="scaleNext" type="button" aria-label="下一页">›</button>
-        <label class="scale-size"><select aria-label="每页条数"><option>10 条/页</option></select><i></i></label>
+        <label class="scale-size"><select aria-label="每页条数"><option value="20">20 条/页</option></select><i></i></label>
         <span>跳至</span><input id="scaleJump" type="number" min="1" aria-label="跳转页码"><span>页</span>
       </footer>
     </section>`;
@@ -290,7 +290,11 @@ scaleBody.addEventListener('click',event=>{
     return;
   }
   const preview=event.target.closest('[data-scale-preview]');
-  if(preview){scaleToast(`正在预览“${scaleRows[Number(preview.dataset.scalePreview)].name}”`);return}
+  if(preview){
+    const row=scaleRows[Number(preview.dataset.scalePreview)];
+    window.dispatchEvent(new CustomEvent('open-scale-preview',{detail:{...row}}));
+    return;
+  }
   const more=event.target.closest('[data-scale-more]');
   if(more){
     const menu=more.nextElementSibling;

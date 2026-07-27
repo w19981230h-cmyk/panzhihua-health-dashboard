@@ -1,0 +1,457 @@
+.main-content.assessment-report-mode {
+  background: #f2f5ff;
+}
+
+.main-content.assessment-report-mode > .customer-card,
+.main-content.assessment-report-mode > #performanceDashboard,
+.main-content.assessment-report-mode > #recipePage,
+.main-content.assessment-report-mode > #scalePage {
+  display: none !important;
+}
+
+.assessment-report-page {
+  min-height: 0;
+  flex: 1;
+  margin: 5px 0 16px;
+}
+
+.assessment-report-page[hidden] {
+  display: none;
+}
+
+.assessment-report-card {
+  min-height: calc(100vh - 87px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.assessment-toolbar {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.assessment-search {
+  position: relative;
+  width: 268px;
+  height: 40px;
+}
+
+.assessment-search svg {
+  position: absolute;
+  left: 13px;
+  top: 12px;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: #a8b2c4;
+  stroke-width: 1.8;
+  pointer-events: none;
+}
+
+.assessment-search input,
+.assessment-dropdown-trigger {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #e2e7ef;
+  border-radius: 4px;
+  color: #56657d;
+  background: #fff;
+  font: inherit;
+  outline: none;
+  transition: border-color .16s, box-shadow .16s;
+}
+
+.assessment-search input {
+  padding: 0 12px 0 39px;
+}
+
+.assessment-search input::placeholder,
+.assessment-dropdown-trigger.placeholder {
+  color: #b7bfcd;
+}
+
+.assessment-search input:hover,
+.assessment-dropdown-trigger:hover {
+  border-color: #91b3ff;
+}
+
+.assessment-search input:focus-visible,
+.assessment-dropdown-trigger:focus-visible,
+.assessment-dropdown.open .assessment-dropdown-trigger {
+  border-color: #2f60ff;
+  box-shadow: 0 0 0 2px rgba(47,96,255,.12);
+}
+
+.assessment-dropdown {
+  position: relative;
+  width: 268px;
+  height: 40px;
+  flex: 0 0 268px;
+}
+
+.assessment-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 0 38px 0 14px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.assessment-dropdown-trigger > i,
+.assessment-size > i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid #a8b2c4;
+  border-bottom: 1.5px solid #a8b2c4;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+.assessment-dropdown.open .assessment-dropdown-trigger > i {
+  transform: translateY(-20%) rotate(225deg);
+}
+
+.assessment-dropdown-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 1px);
+  left: 0;
+  width: 100%;
+  padding: 0;
+  border: 1px solid #9aa3b2;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 0 5px 12px rgba(30,47,80,.08);
+  overflow: hidden;
+}
+
+.assessment-dropdown-menu[hidden] {
+  display: none;
+}
+
+.assessment-dropdown-option {
+  display: block;
+  width: 100%;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  color: #53627a;
+  background: #fff;
+  text-align: left;
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+.assessment-dropdown-option.placeholder {
+  color: #aab3c2;
+}
+
+.assessment-dropdown-option:hover {
+  background: #f0f4fb;
+}
+
+.assessment-dropdown-option.selected {
+  color: #fff;
+  background: #246edb;
+}
+
+.assessment-add {
+  min-width: 106px;
+  height: 40px;
+  margin-left: auto;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: #1647f5;
+  box-shadow: 0 2px 5px rgba(22,71,245,.22);
+  font: inherit;
+  cursor: pointer;
+}
+
+.assessment-add b {
+  margin-right: 5px;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.assessment-add:hover {
+  background: #0f3fe6;
+}
+
+.assessment-report-page button:focus-visible {
+  outline: 2px solid rgba(22,71,245,.4);
+  outline-offset: 2px;
+}
+
+.assessment-table-wrap {
+  min-width: 980px;
+}
+
+.assessment-table {
+  width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  color: #68768e;
+  font-size: 13px;
+}
+
+.assessment-table col.name { width: 25%; }
+.assessment-table col.scales { width: 15%; }
+.assessment-table col.output { width: 17%; }
+.assessment-table col.status { width: 16%; }
+.assessment-table col.self { width: 16%; }
+.assessment-table col.actions { width: 11%; }
+
+.assessment-table thead {
+  color: #35445e;
+  background: #f4f6f9;
+}
+
+.assessment-table th {
+  height: 52px;
+  padding: 0 10px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.assessment-table td {
+  height: 56px;
+  padding: 0 10px;
+  border-bottom: 1px solid #edf0f4;
+  vertical-align: middle;
+}
+
+.assessment-table th,
+.assessment-table td {
+  width: auto;
+}
+
+.assessment-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.assessment-name {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.assessment-name > span {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assessment-name > div {
+  display: flex;
+  gap: 4px;
+}
+
+.assessment-name em {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 3px;
+  color: #76849a;
+  background: #f5f7fa;
+  font-style: normal;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.assessment-name em.blue {
+  color: #3564f6;
+  background: #edf2ff;
+}
+
+.assessment-status {
+  color: #27c874;
+  white-space: nowrap;
+}
+
+.assessment-status.draft {
+  color: #f19a30;
+}
+
+.assessment-status i {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 1px;
+}
+
+.assessment-help-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.assessment-help-title button {
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #66758e;
+  border-radius: 50%;
+  color: #66758e;
+  background: transparent;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.assessment-switch {
+  width: 36px;
+  height: 20px;
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: #bdc5d3;
+  cursor: pointer;
+  transition: background-color .16s;
+}
+
+.assessment-switch span {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(27,42,74,.22);
+  transition: transform .18s cubic-bezier(.16,1,.3,1);
+}
+
+.assessment-switch.checked {
+  background: #1747f5;
+}
+
+.assessment-switch.checked span {
+  transform: translateX(16px);
+}
+
+.assessment-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.assessment-actions button {
+  padding: 0;
+  border: 0;
+  color: #1747f5;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.assessment-actions button:hover {
+  color: #0e37cb;
+}
+
+.assessment-empty {
+  padding: 60px 20px;
+  color: #9aa5b8;
+  text-align: center;
+}
+
+.assessment-empty[hidden] {
+  display: none;
+}
+
+.assessment-pagination {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 18px;
+  color: #526078;
+  font-size: 13px;
+}
+
+.assessment-page-arrow,
+.assessment-page-numbers button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #56657d;
+  background: #fff;
+  cursor: pointer;
+}
+
+.assessment-page-arrow {
+  color: #98a3b5;
+  background: #f5f7fa;
+}
+
+.assessment-page-arrow:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.assessment-page-numbers button.active {
+  color: #fff;
+  background: #1747f5;
+}
+
+.assessment-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.assessment-page-ellipsis {
+  min-width: 18px;
+  color: #8f9aab;
+  text-align: center;
+}
+
+.assessment-size {
+  position: relative;
+  width: 110px;
+  height: 32px;
+}
+
+.assessment-size select {
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  padding: 0 30px 0 12px;
+  border: 1px solid #e2e7ef;
+  border-radius: 4px;
+  color: #53627a;
+  background: #fff;
+  font: inherit;
+}
+
+@media (max-width: 1200px) {
+  .assessment-report-card {
+    overflow-x: auto;
+  }
+}
