@@ -127,26 +127,32 @@
 
 .recipe-create-button{
   align-self:end;
-  height:40px;
-  min-width:108px;
+  height:44px;
+  min-width:116px;
   margin-bottom:0;
-  padding:0 15px;
+  padding:0 16px;
   border:0;
   border-radius:4px;
-  background:#1544ee;
+  background:#173bff;
   color:#fff;
   font-size:14px;
-  box-shadow:0 3px 8px rgba(21,68,238,.18);
+  font-weight:400;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 2px 4px rgba(23,59,255,.2);
 }
 
 .recipe-create-button:hover{
-  background:#0e3ddd;
+  background:#102fe8;
 }
 
 .recipe-create-button b{
-  margin-right:8px;
-  font-size:18px;
+  font-family:Arial,sans-serif;
+  font-size:20px;
   font-weight:400;
+  line-height:1;
 }
 
 .recipe-more-row{
@@ -1144,18 +1150,18 @@ th,
 }
 
 .recipe-create-button{
-  height:40px;
+  height:44px;
   min-width:116px;
-  padding:0 18px;
+  padding:0 16px;
   border:0;
-  border-radius:8px;
-  background:#163ff2;
+  border-radius:4px;
+  background:#173bff;
   color:#fff;
   font-size:14px;
-  font-weight:500;
-  box-shadow:0 3px 6px rgba(22,63,242,.22);
+  font-weight:400;
+  box-shadow:0 2px 4px rgba(23,59,255,.2);
 }
 
 .recipe-create-button:hover{
-  background:#1237dc;
+  background:#102fe8;
 }

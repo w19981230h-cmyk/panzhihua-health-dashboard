@@ -32,7 +32,7 @@ const baseRows = [
   ['罗桂英','PZH260728','73岁','女','189****6742','全科医学科','高血压合并慢性心力衰竭','心脏起搏器植入术','2026-07-03','高血压规范管理']
 ].map((row,index)=>[...row.slice(0,4),managementStatuses[index%managementStatuses.length],...row.slice(4)]);
 
-const state={page:1,size:10,query:'',team:'',managementStatus:[],gender:'',minAge:'',maxAge:'',visible:columns.map(()=>true)};
+const state={page:1,size:20,query:'',team:'',managementStatus:[],gender:'',minAge:'',maxAge:'',visible:columns.map(()=>true)};
 const $=s=>document.querySelector(s);
 const head=$('#tableHead'),body=$('#tableBody'),empty=$('#emptyState');
 const managementSelect=$('#managementStatusSelect');
@@ -59,7 +59,7 @@ function render(){
   const shown=rows.slice((state.page-1)*state.size,state.page*state.size);
   body.innerHTML=shown.map((r,rowIndex)=>`<tr>${r.map((v,i)=>{
     if(!state.visible[i])return '';
-    if(i===4)return `<td><span class="management-tag status-${managementStatuses.indexOf(v)+1}">${v}</span></td>`;
+    if(i===4)return `<td title="${v}">${v}</td>`;
     if(i===5)return `<td><span class="phone">${v}<svg><use href="#i-eye"/></svg></span></td>`;
     return `<td title="${v}">${v}</td>`;
   }).join('')}${state.visible[11]?`<td><div class="actions"><button class="link-button record" data-name="${r[0]}">档案</button><button class="link-button group" data-name="${r[0]}">选择分组</button></div></td>`:''}</tr>`).join('');
@@ -262,35 +262,8 @@ function dashboardPeriodLabels(start,end,granularity){
 
 function updateDashboardTimeCharts(root,granularity,start,end){
   root.dataset.granularity=granularity;
-  const labels=dashboardPeriodLabels(start,end,granularity);
-  const comparison=granularity==='日'?'较昨日':granularity==='周'?'较上周':'较上月';
-  root.querySelectorAll('.metric-card footer,.mini-metrics.four small').forEach(node=>{
-    node.childNodes.forEach(child=>{
-      if(child.nodeType===Node.TEXT_NODE&&child.textContent.trim().startsWith('较')){
-        child.textContent=`${comparison} `;
-      }
-    });
-  });
   const note=root.querySelector('.dash-footer>span:first-child');
   if(note)note.textContent=`注：当前按${granularity}统计，数据范围 ${formatDashboardDate(start)} ~ ${formatDashboardDate(end)}`;
-  const lineChart=dashboardChartMap.trendLineChart;
-  const barChart=dashboardChartMap.resourceBarChart;
-  if(!lineChart||!barChart)return;
-  const rateBases=[68,57,42,28];
-  lineChart.setOption({
-    xAxis:{data:labels},
-    series:rateBases.map((base,seriesIndex)=>({
-      data:labels.map((_,index)=>Number((base+Math.sin((index+seriesIndex)*1.15)*4+index%3).toFixed(1)))
-    }))
-  });
-  const aggregationScale=granularity==='日'?1:granularity==='周'?6.6:29.5;
-  const resourceBases=[520,215,118,72];
-  barChart.setOption({
-    xAxis:{data:labels},
-    series:resourceBases.map((base,seriesIndex)=>({
-      data:labels.map((_,index)=>Math.round((base+((index*37+seriesIndex*19)%95))*aggregationScale))
-    }))
-  });
 }
 
 function initDashboardRangePicker(root){
@@ -366,90 +339,276 @@ function initDashboardRangePicker(root){
   updateValues();
 }
 
+const dashboardDiseaseProfiles={
+  '慢性肾病 CKD':{
+    total:4285,newPatients:214,rates:[84.7,89.3,6.4],
+    age:[['35岁以下',.3],['35–44岁',3.8],['45–54岁',14.9],['55–64岁',31.6],['65–74岁',32.8],['75岁及以上',16.6]],
+    gender:[['男性',55.1],['女性',44.9]],
+    comorbidity:[['单纯慢性肾病',32.4],['合并高血压',38.6],['合并糖尿病',18.2],['合并心血管疾病',7.1],['其他共病',3.7]],
+    risk:[['低风险',8.4],['中风险',24.7],['高风险',39.2],['极高风险',27.7]],
+    control:[['病情稳定',58.4],['需调整方案',22.6],['重点干预',12.1],['近期无有效监测',6.9]],
+    adherence:[['依从性良好',71.3],['依从性一般',21.4],['依从性较差',7.3]],
+    source:[['门诊就诊',35.8],['住院患者',39.2],['体检中心',7.6],['社区筛查',14.1],['双向转诊',3.3]]
+  },
+  '高血压':{
+    total:12856,newPatients:732,rates:[88.4,92.1,4.9],
+    age:[['35岁以下',1.8],['35–44岁',7.6],['45–54岁',18.9],['55–64岁',31.7],['65–74岁',27.4],['75岁及以上',12.6]],
+    gender:[['男性',51.8],['女性',48.2]],
+    comorbidity:[['单纯高血压',41.6],['合并糖尿病',21.8],['合并血脂异常',18.4],['合并冠心病',10.7],['合并慢性肾病',7.5]],
+    risk:[['低风险',17.8],['中风险',33.6],['高风险',32.1],['极高风险',16.5]],
+    control:[['血压已达标',62.8],['临界控制',18.7],['血压未达标',14.1],['近期无有效测量',4.4]],
+    adherence:[['依从性良好',69.4],['依从性一般',22.8],['依从性较差',7.8]],
+    source:[['门诊就诊',41.2],['住院患者',18.6],['体检中心',19.8],['社区筛查',18.7],['双向转诊',1.7]]
+  },
+  '糖尿病':{
+    total:9732,newPatients:568,rates:[86.9,90.8,5.6],
+    age:[['35岁以下',1.4],['35–44岁',6.8],['45–54岁',20.7],['55–64岁',33.2],['65–74岁',26.1],['75岁及以上',11.8]],
+    gender:[['男性',49.7],['女性',50.3]],
+    comorbidity:[['单纯糖尿病',36.8],['合并高血压',32.6],['合并血脂异常',16.9],['合并慢性肾病',8.7],['其他共病',5.0]],
+    risk:[['低风险',14.6],['中风险',34.8],['高风险',35.2],['极高风险',15.4]],
+    control:[['血糖已达标',57.6],['临界控制',21.9],['血糖未达标',15.8],['近期无有效测量',4.7]],
+    adherence:[['依从性良好',67.1],['依从性一般',24.5],['依从性较差',8.4]],
+    source:[['门诊就诊',43.6],['住院患者',20.4],['体检中心',17.2],['社区筛查',16.9],['双向转诊',1.9]]
+  },
+  '冠心病':{
+    total:2571,newPatients:126,rates:[85.8,90.2,5.9],
+    age:[['35岁以下',.2],['35–44岁',2.9],['45–54岁',12.8],['55–64岁',29.7],['65–74岁',35.1],['75岁及以上',19.3]],
+    gender:[['男性',62.7],['女性',37.3]],
+    comorbidity:[['稳定性冠心病',42.5],['合并高血压',27.6],['合并糖尿病',15.9],['合并心力衰竭',8.4],['其他共病',5.6]],
+    risk:[['低风险',5.8],['中风险',21.4],['高风险',42.7],['极高风险',30.1]],
+    control:[['病情稳定',64.2],['需复查评估',19.6],['重点干预',11.7],['近期失联',4.5]],
+    adherence:[['依从性良好',74.8],['依从性一般',19.3],['依从性较差',5.9]],
+    source:[['门诊就诊',39.4],['住院患者',43.7],['体检中心',4.8],['社区筛查',8.6],['双向转诊',3.5]]
+  },
+  '脑卒中':{
+    total:2746,newPatients:142,rates:[83.6,88.9,7.2],
+    age:[['35岁以下',.3],['35–44岁',3.4],['45–54岁',13.1],['55–64岁',28.8],['65–74岁',34.6],['75岁及以上',19.8]],
+    gender:[['男性',59.8],['女性',40.2]],
+    comorbidity:[['缺血性脑卒中',68.4],['出血性脑卒中',14.2],['合并高血压',9.6],['合并房颤',4.8],['其他',3.0]],
+    risk:[['低风险',6.1],['中风险',23.7],['高风险',41.8],['极高风险',28.4]],
+    control:[['康复稳定',52.7],['持续康复中',27.4],['重点干预',13.6],['近期失联',6.3]],
+    adherence:[['依从性良好',65.8],['依从性一般',25.6],['依从性较差',8.6]],
+    source:[['门诊就诊',25.8],['住院患者',52.6],['体检中心',2.1],['社区筛查',14.9],['双向转诊',4.6]]
+  },
+  '慢阻肺 COPD':{
+    total:2119,newPatients:108,rates:[82.7,87.6,7.8],
+    age:[['35岁以下',.1],['35–44岁',1.7],['45–54岁',10.6],['55–64岁',28.2],['65–74岁',37.8],['75岁及以上',21.6]],
+    gender:[['男性',68.9],['女性',31.1]],
+    comorbidity:[['稳定期慢阻肺',55.6],['合并高血压',18.3],['合并肺心病',11.8],['合并糖尿病',7.4],['其他共病',6.9]],
+    risk:[['低风险',9.7],['中风险',31.2],['高风险',38.6],['极高风险',20.5]],
+    control:[['病情稳定',56.9],['症状控制一般',24.8],['近期急性加重',12.7],['近期失联',5.6]],
+    adherence:[['依从性良好',63.7],['依从性一般',26.9],['依从性较差',9.4]],
+    source:[['门诊就诊',31.7],['住院患者',45.8],['体检中心',2.9],['社区筛查',15.8],['双向转诊',3.8]]
+  },
+  '血脂异常':{
+    total:6584,newPatients:394,rates:[89.1,92.8,4.3],
+    age:[['35岁以下',2.6],['35–44岁',11.8],['45–54岁',25.4],['55–64岁',31.6],['65–74岁',20.7],['75岁及以上',7.9]],
+    gender:[['男性',53.6],['女性',46.4]],
+    comorbidity:[['单纯血脂异常',38.9],['合并高血压',29.8],['合并糖尿病',17.4],['合并冠心病',9.3],['其他共病',4.6]],
+    risk:[['低风险',22.4],['中风险',37.8],['高风险',27.5],['极高风险',12.3]],
+    control:[['血脂已达标',59.8],['临界控制',22.7],['血脂未达标',13.6],['近期无有效测量',3.9]],
+    adherence:[['依从性良好',68.7],['依从性一般',23.7],['依从性较差',7.6]],
+    source:[['门诊就诊',36.2],['住院患者',12.4],['体检中心',31.7],['社区筛查',18.1],['双向转诊',1.6]]
+  },
+  '肥胖/减重管理':{
+    total:3927,newPatients:286,rates:[87.5,90.6,5.1],
+    age:[['35岁以下',8.7],['35–44岁',22.6],['45–54岁',30.8],['55–64岁',24.7],['65–74岁',10.1],['75岁及以上',3.1]],
+    gender:[['男性',42.8],['女性',57.2]],
+    comorbidity:[['单纯肥胖',34.7],['合并脂肪肝',24.8],['合并高血压',19.6],['合并糖尿病',12.7],['其他共病',8.2]],
+    risk:[['低风险',24.1],['中风险',39.7],['高风险',27.8],['极高风险',8.4]],
+    control:[['减重达标',31.6],['持续干预中',45.8],['效果不佳',17.4],['近期失联',5.2]],
+    adherence:[['依从性良好',61.9],['依从性一般',28.4],['依从性较差',9.7]],
+    source:[['门诊就诊',28.7],['住院患者',5.6],['体检中心',38.4],['社区筛查',25.9],['双向转诊',1.4]]
+  }
+};
+
+const dashboardDiseaseAnalysisProfiles={
+  '慢性肾病 CKD':[
+    ['单纯慢性肾病',25.8],['合并高血压',30.7],['合并糖尿病',14.8],['合并血脂异常',8.6],
+    ['合并心血管病',7.2],['合并高尿酸',6.1],['合并脑血管病',3.9],['其他共病',2.9]
+  ],
+  '高血压':[
+    ['单纯高血压',34.6],['合并糖尿病',18.8],['合并血脂异常',16.4],['合并冠心病',9.7],
+    ['合并慢性肾病',7.5],['合并脑卒中',5.8],['合并肥胖',4.6],['其他共病',2.6]
+  ],
+  '糖尿病':[
+    ['单纯糖尿病',30.8],['合并高血压',27.6],['合并血脂异常',14.9],['合并慢性肾病',8.7],
+    ['合并冠心病',6.9],['合并肥胖',5.4],['合并脂肪肝',3.6],['其他共病',2.1]
+  ],
+  '冠心病':[
+    ['单纯冠心病',35.5],['合并高血压',22.6],['合并糖尿病',13.9],['合并血脂异常',9.8],
+    ['合并心力衰竭',7.4],['合并慢性肾病',5.1],['合并脑卒中',3.4],['其他共病',2.3]
+  ],
+  '脑卒中':[
+    ['缺血性脑卒中',54.4],['出血性脑卒中',12.2],['合并高血压',13.6],['合并房颤',5.8],
+    ['合并糖尿病',5.0],['合并血脂异常',4.2],['合并冠心病',2.8],['其他共病',2.0]
+  ],
+  '慢阻肺 COPD':[
+    ['稳定期慢阻肺',44.6],['合并高血压',15.3],['合并肺心病',10.8],['合并糖尿病',7.4],
+    ['合并冠心病',6.9],['合并骨质疏松',6.2],['合并慢性肾病',4.1],['其他共病',4.7]
+  ],
+  '血脂异常':[
+    ['单纯血脂异常',31.9],['合并高血压',24.8],['合并糖尿病',14.4],['合并冠心病',8.3],
+    ['合并脂肪肝',7.6],['合并肥胖',6.4],['合并慢性肾病',3.9],['其他共病',2.7]
+  ],
+  '肥胖/减重管理':[
+    ['单纯肥胖',27.7],['合并脂肪肝',19.8],['合并高血压',16.6],['合并糖尿病',10.7],
+    ['合并血脂异常',9.2],['合并高尿酸',6.8],['合并睡眠呼吸暂停',5.6],['其他共病',3.6]
+  ]
+};
+
+const dashboardRegionPercent=[['东区',31.6],['仁和区',24.8],['西区',15.7],['米易县',15.1],['盐边县',12.8]];
+
+function allocateDashboardPopulation(total,distribution){
+  let allocated=0;
+  return distribution.map(([name,percent],index)=>{
+    const value=index===distribution.length-1?total-allocated:Math.round(total*percent/100);
+    allocated+=value;
+    return {name,value};
+  });
+}
+
+let dashboardLiveTick=0;
+
 function buildPerformanceDashboard(){
-  const macroMetrics=[
-    ['i-user','管理患者数','32568','人','5.2%',''],
-    ['i-task','随访覆盖率','85.6','%','3.1%',''],
-    ['i-box','随访完成率','78.3','%','2.4%','green'],
-    ['i-file','任务完成率','82.6','%','2.7%',''],
-    ['i-ai','消息推送成功率','94.7','%','1.8%','orange'],
-    ['i-grid','智能外呼接通率','71.2','%','1.6%',''],
-    ['i-user','外呼随访完成率','63.8','%','2.2%','green'],
-    ['i-settings','异常闭环率','90.5','%','2.9%','orange']
+  const dashboardCurrentTime=new Date().toLocaleString('zh-CN',{
+    hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'
+  });
+  const overviewGroups=[
+    ['i-user','新增入组',[['新增入组人数','214','人','6.1%','up']]],
+    ['i-user','当前在管',[['当前在管人数','4,285','人','0.9%','up']]],
+    ['i-task','任务执行',[
+      ['应完成任务数','3,152','项','1.4%','up'],
+      ['已完成任务数','2,815','项','1.2%','up'],
+      ['任务完成率','89.3','%','0.1 个百分点','up'],
+      ['逾期任务数','337','项','3.4%','down']
+    ]],
+    ['i-operation','失访情况',[
+      ['失访人数','274','人','1.8%','down'],
+      ['失访率','6.4','%','0.2 个百分点','down']
+    ]]
   ];
-  const resourceMetrics=[['消息推送次数','125689','次'],['AI外呼次数','86542','次'],['人工外呼次数','15326','次'],['医生人工处理量','8652','次'],['AI完成量','68945','次']];
-  const barDates=['05-01','05-06','05-11','05-16','05-21','05-26','05-31'];
-  const resourceBars=barDates.map((d,i)=>`<div class="bar-set"><i style="height:${22+i%2*4}%;background:#45b49b"></i><i style="height:${82-i*2}%;background:#397bf0"></i><i style="height:${62-i}%;background:#6fa5f6"></i><i style="height:${20+i%3*3}%;background:#ff8b2d"></i><label>${d}</label></div>`).join('');
-  const macroCards=macroMetrics.map(([icon,label,value,unit,rise,tone])=>`<article class="metric-card"><span class="metric-icon ${tone}"><svg><use href="#${icon}"/></svg></span><div><small>${label}</small><strong data-base="${value}" data-unit="${unit}" data-kind="${unit==='人'?'int':'decimal'}">${Number(value).toLocaleString()}<em>${unit}</em></strong></div><footer>较上月 <b>↑ ${rise}</b></footer></article>`).join('');
-  const resourceCards=resourceMetrics.map(([label,value,unit])=>`<article class="mini-card"><span>${label}</span><strong data-base="${value}" data-unit="${unit}" data-kind="int">${Number(value).toLocaleString()} <small>${unit}</small></strong></article>`).join('');
+  const kpiCards=overviewGroups.map(([icon,title,metrics])=>`
+    <article class="quality-kpi-card${metrics.length===1?' single':''} metric-count-${metrics.length}">
+      <header><span class="quality-kpi-icon"><svg><use href="#${icon}"/></svg></span><h3>${title}</h3></header>
+      <div class="quality-kpi-metrics">
+        ${metrics.map(([label,value,unit,change,direction])=>`
+          <div class="quality-kpi-metric">
+            <h4>${label}</h4>
+            <strong>${value}<em>${unit}</em></strong>
+            ${change?`<footer>较昨日 <b class="${direction}">${direction==='up'?'↑':'↓'} ${change}</b></footer>`:''}
+          </div>`).join('')}
+      </div>
+    </article>`).join('');
+  const serviceItems=[
+    ['i-file','2,815','消息发送次数'],
+    ['i-bell','2,669','消息触达次数'],
+    ['i-grid','94.8%','消息触达率'],
+    ['i-ai','1,843','AI外呼次数'],
+    ['i-operation','1,482','AI接通次数'],
+    ['i-task','1,338','AI完成随访次数'],
+    ['i-grid','90.3%','AI完成率'],
+    ['i-bell','330','人工外呼次数'],
+    ['i-task','268','人工完成随访次数'],
+    ['i-settings','146','人工干预次数']
+  ];
+  const serviceCards=serviceItems.map(([icon,value,label],index)=>`
+    <article class="quality-service-item ${index<4?'ai':'manual'}">
+      <span><svg><use href="#${icon}"/></svg></span>
+      <strong>${value}</strong>
+      <small>${label}</small>
+    </article>`);
   const root=document.createElement('section');
   root.id='performanceDashboard';
-  root.className='performance-dashboard';
+  root.className='performance-dashboard quality-dashboard';
   root.hidden=true;
   root.innerHTML=`
     <header class="dash-page-head">
-      <h1>单病种绩效看板</h1>
+      <h1>单病种质控管理看板</h1>
     </header>
     <div class="dash-canvas">
-    <div class="dash-filter-row">
-      <div class="dash-date ant-picker ant-picker-range" id="dashRangePicker">
-        <button class="dash-range-trigger" id="dashRangeTrigger" type="button" aria-label="统计日期范围" aria-haspopup="dialog" aria-expanded="false">
-          <span class="dash-range-value" id="dashStartText">2025/05/01</span>
-          <span class="ant-picker-range-separator" aria-hidden="true">→</span>
-          <span class="dash-range-value" id="dashEndText">2025/05/31</span>
-          <svg class="dash-calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/></svg>
-        </button>
-        <input id="dashStartDate" type="hidden" value="2025-05-01">
-        <input id="dashEndDate" type="hidden" value="2025-05-31">
-        <div class="dash-range-dropdown" id="dashRangeDropdown" role="dialog" aria-label="选择统计日期范围" hidden>
-          <div class="dash-calendar-panels" id="dashCalendarPanels"></div>
+      <div class="dash-filter-row">
+        <div class="dash-date ant-picker ant-picker-range" id="dashRangePicker">
+          <button class="dash-range-trigger" id="dashRangeTrigger" type="button" aria-label="统计日期范围" aria-haspopup="dialog" aria-expanded="false">
+            <span class="dash-range-value" id="dashStartText">2026/02/04</span>
+            <span class="ant-picker-range-separator" aria-hidden="true">→</span>
+            <span class="dash-range-value" id="dashEndText">2026/03/05</span>
+            <svg class="dash-calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/></svg>
+          </button>
+          <input id="dashStartDate" type="hidden" value="2026-02-04">
+          <input id="dashEndDate" type="hidden" value="2026-03-05">
+          <div class="dash-range-dropdown" id="dashRangeDropdown" role="dialog" aria-label="选择统计日期范围" hidden>
+            <div class="dash-calendar-panels" id="dashCalendarPanels"></div>
+          </div>
         </div>
+        ${buildDashboardSelect('全部医联体',['全部医联体','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],'medicalAlliance')}
+        ${buildDashboardSelect('全部机构',['全部机构','攀枝花市中心医院','攀枝花市中西医结合医院','仁和区人民医院'],'organization')}
+        ${buildDashboardSelect('全部团队',['全部团队','慢病联合管理团队','高血压管理团队','糖尿病管理团队'],'team')}
+        ${buildDashboardSelect('慢性肾病 CKD',['慢性肾病 CKD','高血压','糖尿病','冠心病','脑卒中','慢阻肺 COPD','血脂异常','肥胖/减重管理'],'disease')}
+        ${buildDashboardSelect('全部人员',['全部人员','张医生','李医生','王医生'],'person')}
       </div>
-      ${buildDashboardSelect('医疗集团',['医疗集团','区域医联体'])}
-      ${buildDashboardSelect('医疗机构',['医疗机构','市中心医院','社区卫生中心'])}
-      ${buildDashboardSelect('团队',['团队','高血压管理团队'])}
-      ${buildDashboardSelect('个人',['个人','羊医生'])}
-    </div>
-    <section class="dash-section">
-      <h2 class="section-title">宏观成效指标</h2>
-      <div class="macro-grid">${macroCards}</div>
-    </section>
-    <div class="dashboard-middle">
-      <section class="dash-panel">
-        <h2 class="section-title">慢性病成效指标</h2>
-        <div class="mini-metrics four">
-          ${[['血压达标率','68.3'],['血糖达标率','61.7'],['用药依从率','72.6'],['复查完成率','65.4']].map(([t,v],i)=>`<article class="mini-card"><span>${t}</span><strong data-base="${v}" data-unit="%" data-kind="decimal">${v}%</strong><small>较上月 <b>↑ ${[2.5,1.8,2.1,1.6][i]}%</b></small></article>`).join('')}
-        </div>
-        <div class="chart-card line-chart"><h3>指标达标率趋势</h3><div class="echart-box" id="trendLineChart"></div></div>
+      <section class="quality-panel quality-overview">
+        <header class="quality-panel-head">
+          <h2>管理成效总览 <i aria-hidden="true">ⓘ</i></h2>
+          <div class="quality-update">
+            <span id="dashUpdateTime">数据更新时间：${dashboardCurrentTime}</span>
+            <button class="dash-refresh-icon" id="dashRefresh" type="button" aria-label="刷新实时数据" title="刷新实时数据">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg>
+            </button>
+          </div>
+        </header>
+        <div class="quality-kpi-grid">${kpiCards}</div>
       </section>
-      <section class="dash-panel">
-        <h2 class="section-title">服务资源应用情况</h2>
-        <div class="mini-metrics five">${resourceCards}</div>
-        <div class="resource-charts">
-          <div class="chart-card"><h3>服务方式占比</h3><div class="echart-box" id="servicePieChart"></div></div>
-          <div class="chart-card"><h3>资源使用趋势</h3><div class="echart-box" id="resourceBarChart"></div></div>
-        </div>
+      <section class="quality-panel quality-services">
+        <header class="quality-panel-head"><h2>服务资源应用情况</h2></header>
+        <div class="quality-service-strip">${serviceCards.join('')}</div>
       </section>
-    </div>
-    <div class="dashboard-bottom">
-      <section class="dash-panel">
-        <h2 class="section-title">流程统计</h2>
-        <div class="flow-layout">
-          <div class="funnel-chart" id="referralFunnelChart"></div>
-          <div class="flow-stats">${[['向上级转诊率','53.3%'],['向下级转诊率','46.7%'],['转诊成功率','86.7%'],['转诊闭环率','86.0%']].map(([t,v])=>`<article class="mini-card"><span>${t}</span><strong>${v}</strong><small>较上月 <b>↑ 2.1%</b></small></article>`).join('')}</div>
-          <div class="reason-table"><h3>转诊原因分布 TOP5</h3><table><thead><tr><th>转诊原因</th><th>人数</th><th>占比</th></tr></thead><tbody><tr><td>病情加重</td><td>856</td><td>36.3%</td></tr><tr><td>诊断明确</td><td>542</td><td>23.0%</td></tr><tr><td>治疗方案调整</td><td>368</td><td>15.6%</td></tr><tr><td>检查需求</td><td>302</td><td>12.8%</td></tr><tr><td>其他</td><td>288</td><td>12.3%</td></tr></tbody></table></div>
-        </div>
-      </section>
-      <section class="dash-panel">
-        <h2 class="section-title">人群分析</h2>
-        <div class="crowd-tabs" id="crowdTabs"><button class="active">年龄分布</button><button>性别分布</button><button>地区分布</button><button>疾病分布</button><button>风险等级</button><button>控制情况</button><button>依从性</button></div>
-        <div class="crowd-charts">
-          <div class="age-donut-wrap"><div class="echart-box" id="agePieChart"></div></div>
-          <div class="crowd-bars-wrap"><h3>不同人群随访完成率对比</h3><div class="echart-box" id="crowdBarChart"></div></div>
-        </div>
-      </section>
-    </div>
-    <footer class="dash-footer"><span>注：数据统计截止至 2025-05-31 23:59:59，较上月数据为 2025-04-01 ~ 2025-04-30</span><span id="dashUpdateTime">数据更新时间：2025-06-01 09:30:00</span><button class="dash-refresh" id="dashRefresh">⟳　刷新</button></footer>
+      <div class="quality-two-column">
+        <section class="quality-panel quality-diseases">
+          <header class="quality-panel-head"><h2>病种分析 <i aria-hidden="true">ⓘ</i></h2></header>
+          <div class="quality-disease-chart" id="diseaseDistributionChart"></div>
+        </section>
+        <section class="quality-panel quality-referral">
+          <header class="quality-panel-head"><h2>上下级转诊统计 <i aria-hidden="true">ⓘ</i></h2></header>
+          <div class="quality-referral-grid">
+            <article>
+              <h3>上转</h3>
+              <div class="quality-funnel-chart" id="upReferralChart"></div>
+              <footer><span>上转随访完成率</span><strong>66.1%</strong></footer>
+            </article>
+            <article>
+              <h3>下转</h3>
+              <div class="quality-funnel-chart" id="downReferralChart"></div>
+              <footer><span>下转随访完成率</span><strong>79.3%</strong></footer>
+            </article>
+          </div>
+        </section>
+      </div>
+      <div class="quality-two-column quality-crowd-source-row">
+        <section class="quality-panel quality-crowd">
+          <header class="quality-panel-head"><h2>人群分析</h2></header>
+          <nav class="quality-analysis-tabs" aria-label="人群分析维度">
+            <button class="active" type="button" data-analysis-key="age" aria-selected="true">年龄分布</button>
+            <button type="button" data-analysis-key="gender" aria-selected="false">性别分布</button>
+            <button type="button" data-analysis-key="region" aria-selected="false">地区分布（TOP10）</button>
+            <button type="button" data-analysis-key="risk" aria-selected="false">风险等级分布</button>
+            <button type="button" data-analysis-key="control" aria-selected="false">控制情况分布</button>
+            <button type="button" data-analysis-key="adherence" aria-selected="false">依从性分布</button>
+          </nav>
+          <div class="quality-region-level" id="regionLevelSwitch" hidden>
+            <strong><span>四川省</span><i>›</i><span>攀枝花市</span></strong>
+            <span class="quality-region-badge">区县级</span>
+          </div>
+          <div class="quality-crowd-chart" id="crowdAnalysisChart"></div>
+        </section>
+        <section class="quality-panel quality-source">
+          <header class="quality-panel-head"><h2>人群来源分布 <i aria-hidden="true">ⓘ</i></h2></header>
+          <div class="quality-source-chart" id="sourceDonutChart"></div>
+        </section>
+      </div>
+      <footer class="dash-footer">
+        <span>注：当前按日统计，数据范围 2026-02-04 ~ 2026-03-05</span>
+      </footer>
     </div>
   `;
   document.querySelector('.main-content').appendChild(root);
@@ -496,16 +655,13 @@ function buildPerformanceDashboard(){
     if(event.key==='Escape')closeDashboardSelects();
   }));
   document.addEventListener('click',event=>{if(!root.contains(event.target))closeDashboardSelects()});
-  root.querySelector('#crowdTabs').addEventListener('click',event=>{
-    if(event.target.tagName!=='BUTTON')return;
-    root.querySelectorAll('#crowdTabs button').forEach(button=>button.classList.remove('active'));
-    event.target.classList.add('active');
-    showToast(`已切换至${event.target.textContent}`);
-  });
   root.querySelector('#dashRefresh').addEventListener('click',()=>{
+    dashboardLiveTick+=1;
     refreshDashboardMetrics();
-    root.querySelector('#dashUpdateTime').textContent=`数据更新时间：${new Date().toLocaleString('zh-CN',{hour12:false})}`;
-    showToast('看板数据已刷新');
+    root.querySelector('#dashUpdateTime').textContent=`数据更新时间：${new Date().toLocaleString('zh-CN',{hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}`;
+    root.querySelector('#dashRefresh').classList.add('refreshing');
+    setTimeout(()=>root.querySelector('#dashRefresh')?.classList.remove('refreshing'),320);
+    showToast('实时数据已更新');
   });
   return root;
 }
@@ -513,99 +669,305 @@ function buildPerformanceDashboard(){
 function refreshDashboardMetrics(){
   const root=$('#performanceDashboard');
   if(!root)return;
-  const offset=[...root.querySelectorAll('.dash-filter')].reduce((sum,select)=>sum+Number(select.dataset.selectedIndex||0),0);
-  const factor=1+offset*.006;
-  root.querySelectorAll('[data-base]').forEach(node=>{
-    const value=Number(node.dataset.base)*factor;
-    const unit=node.dataset.unit||'';
-    const formatted=node.dataset.kind==='int'?Math.round(value).toLocaleString():value.toFixed(1);
-    node.innerHTML=`${formatted}<em>${unit}</em>`;
+  const diseaseName=root.querySelector('[data-filter-key="disease"] .dash-ant-select-value')?.textContent.trim()||'慢性肾病 CKD';
+  const baseProfile=dashboardDiseaseProfiles[diseaseName]||dashboardDiseaseProfiles['慢性肾病 CKD'];
+  const allianceIndex=Number(root.querySelector('[data-filter-key="medicalAlliance"]')?.dataset.selectedIndex||0);
+  const organizationIndex=Number(root.querySelector('[data-filter-key="organization"]')?.dataset.selectedIndex||0);
+  const teamIndex=Number(root.querySelector('[data-filter-key="team"]')?.dataset.selectedIndex||0);
+  const personIndex=Number(root.querySelector('[data-filter-key="person"]')?.dataset.selectedIndex||0);
+  const allianceFactors=[1,.62,.38];
+  const organizationFactors=[1,.42,.31,.27];
+  const teamFactors=[1,.38,.34,.28];
+  const personFactors=[1,.36,.33,.31];
+  const factor=(allianceFactors[allianceIndex]||1)*(organizationFactors[organizationIndex]||1)*
+    (teamFactors[teamIndex]||1)*(personFactors[personIndex]||1);
+  const rateOffset=allianceIndex*.1+organizationIndex*.2-teamIndex*.1+personIndex*.08;
+  const liveTotal=baseProfile.total+dashboardLiveTick*Math.max(1,Math.round(baseProfile.total*.0004));
+  const liveNewPatients=baseProfile.newPatients+dashboardLiveTick*Math.max(1,Math.round(baseProfile.newPatients*.003));
+  const profile={
+    ...baseProfile,
+    name:diseaseName,
+    total:Math.max(1,Math.round(liveTotal*factor)),
+    newPatients:Math.max(1,Math.round(liveNewPatients*factor)),
+    rates:[
+      Number(Math.min(99.5,baseProfile.rates[0]+rateOffset+dashboardLiveTick*.1).toFixed(1)),
+      Number(Math.min(99.5,baseProfile.rates[1]+rateOffset*.7+dashboardLiveTick*.1).toFixed(1)),
+      Number(Math.max(1,baseProfile.rates[2]-rateOffset*.3-dashboardLiveTick*.1).toFixed(1))
+    ]
+  };
+  const completedTasks=Math.round(profile.total*.657);
+  const expectedTasks=Math.max(completedTasks,Math.round(completedTasks/(profile.rates[1]/100)));
+  const overdueTasks=Math.max(0,expectedTasks-completedTasks);
+  const overviewValues=[
+    [profile.newPatients,'人','int'],
+    [profile.total,'人','int'],
+    [expectedTasks,'项','int'],
+    [completedTasks,'项','int'],
+    [profile.rates[1],'%','decimal'],
+    [overdueTasks,'项','int'],
+    [Math.round(profile.total*profile.rates[2]/100),'人','int'],
+    [profile.rates[2],'%','decimal']
+  ];
+  root.querySelectorAll('.quality-kpi-metric strong').forEach((node,index)=>{
+    const [value,unit,kind]=overviewValues[index];
+    node.innerHTML=`${kind==='int'?Number(value).toLocaleString('zh-CN'):Number(value).toFixed(1)}<em>${unit}</em>`;
   });
+  const dayChanges=[
+    `${(3.1+(baseProfile.newPatients%8)*.5).toFixed(1)}%`,
+    `${(0.8+(baseProfile.total%7)*.1).toFixed(1)}%`,
+    `${(1.1+(baseProfile.total%4)*.1).toFixed(1)}%`,
+    `${(1.0+(baseProfile.total%5)*.1).toFixed(1)}%`,
+    `${(0.1+(baseProfile.total%3)*.1).toFixed(1)} 个百分点`,
+    `${(2.6+(baseProfile.total%5)*.2).toFixed(1)}%`,
+    `${(1.4+(baseProfile.total%4)*.2).toFixed(1)}%`,
+    `${(0.1+(baseProfile.total%3)*.1).toFixed(1)} 个百分点`
+  ];
+  const dayDirections=['up','up','up','up','up','down','down','down'];
+  root.querySelectorAll('.quality-kpi-metric footer').forEach((footer,index)=>{
+    const direction=dayDirections[index];
+    footer.innerHTML=`较昨日 <b class="${direction}">${direction==='up'?'↑':'↓'} ${dayChanges[index]}</b>`;
+  });
+  const messageSent=Math.round(profile.total*.657);
+  const messageReached=Math.round(messageSent*.948);
+  const aiOutbound=Math.round(profile.total*.43);
+  const aiConnected=Math.round(aiOutbound*.804);
+  const aiCompleted=Math.round(aiConnected*.903);
+  const manualOutbound=Math.round(profile.total*.077);
+  const manualCompleted=Math.round(manualOutbound*.812);
+  const serviceValues=[
+    messageSent.toLocaleString('zh-CN'),
+    messageReached.toLocaleString('zh-CN'),
+    `${(messageReached/messageSent*100).toFixed(1)}%`,
+    aiOutbound.toLocaleString('zh-CN'),
+    aiConnected.toLocaleString('zh-CN'),
+    aiCompleted.toLocaleString('zh-CN'),
+    `${(aiCompleted/aiConnected*100).toFixed(1)}%`,
+    manualOutbound.toLocaleString('zh-CN'),
+    manualCompleted.toLocaleString('zh-CN'),
+    Math.round(profile.total*.034).toLocaleString('zh-CN')
+  ];
+  root.querySelectorAll('.quality-service-item strong').forEach((node,index)=>node.textContent=serviceValues[index]);
+  dashboardRuntime.updateProfile?.(profile);
 }
 
 let dashboardCharts=[];
 let dashboardChartMap={};
 let dashboardChartsReady=false;
+let dashboardRuntime={};
 
 function initDashboardCharts(){
   if(dashboardChartsReady||!window.echarts)return;
   const root=$('#performanceDashboard');
   const create=(id,option)=>{
-    const chart=window.echarts.init(root.querySelector('#'+id),null,{renderer:'canvas'});
+    const node=root.querySelector('#'+id);
+    if(!node)return null;
+    const chart=window.echarts.init(node,null,{renderer:'canvas'});
     chart.setOption(option);
     dashboardCharts.push(chart);
     dashboardChartMap[id]=chart;
+    return chart;
   };
-  const textColor='#52627a';
+  const textColor='#516485';
+  const titleColor='#132a57';
   const axisLine={lineStyle:{color:'#dfe6f0'}};
-  const splitLine={lineStyle:{color:'#edf1f6'}};
-  const tooltip={trigger:'axis',backgroundColor:'rgba(20,34,58,.94)',borderWidth:0,textStyle:{color:'#fff',fontSize:12},padding:[9,12]};
-
-  create('trendLineChart',{
-    color:['#397bf0','#45b49b','#ff8b2d','#765cd7'],tooltip,
-    legend:{top:2,itemWidth:10,itemHeight:6,textStyle:{color:textColor,fontSize:11}},
-    grid:{left:42,right:18,top:42,bottom:28},
-    xAxis:{type:'category',boundaryGap:false,data:['05-01','05-06','05-11','05-16','05-21','05-26','05-31'],axisLine,axisTick:{show:false},axisLabel:{color:textColor}},
-    yAxis:{type:'value',min:0,max:100,axisLabel:{color:textColor,formatter:'{value}%'},axisLine:{show:false},axisTick:{show:false},splitLine},
-    series:[
-      {name:'血压达标率',type:'line',smooth:.32,symbol:'circle',symbolSize:6,data:[68,73,67,72,69,75,71],lineStyle:{width:2.5},areaStyle:{opacity:.035}},
-      {name:'血糖达标率',type:'line',smooth:.32,symbol:'circle',symbolSize:6,data:[57,61,56,63,58,65,62],lineStyle:{width:2.5}},
-      {name:'用药依从率',type:'line',smooth:.32,symbol:'circle',symbolSize:6,data:[42,47,44,49,45,51,48],lineStyle:{width:2.5}},
-      {name:'复查完成率',type:'line',smooth:.32,symbol:'circle',symbolSize:6,data:[28,32,29,34,31,36,33],lineStyle:{width:2.5}}
-    ]
+  const splitLine={lineStyle:{color:'#e9eef7'}};
+  const tooltipBase={backgroundColor:'rgba(18,42,87,.95)',borderWidth:0,textStyle:{color:'#fff',fontSize:14,fontWeight:400},padding:[9,12]};
+  const blueGradient=new window.echarts.graphic.LinearGradient(0,0,1,0,[
+    {offset:0,color:'#4d9cff'},{offset:1,color:'#1768ed'}
+  ]);
+  const verticalBlueGradient=new window.echarts.graphic.LinearGradient(0,0,0,1,[
+    {offset:0,color:'#1768ed'},{offset:1,color:'#69adff'}
+  ]);
+  const formatCount=value=>Number(value).toLocaleString('zh-CN');
+  const buildCrowdSets=profile=>({
+    age:{label:'年龄分布',view:'pie',total:profile.total,data:allocateDashboardPopulation(profile.total,profile.age)},
+    gender:{label:'性别分布',view:'rose',total:profile.total,data:allocateDashboardPopulation(profile.total,profile.gender)},
+    region:{
+      label:'区县分布',
+      view:'bar',
+      total:profile.total,
+      data:allocateDashboardPopulation(profile.total,dashboardRegionPercent)
+    },
+    risk:{label:'风险等级分布',view:'pie',total:profile.total,data:allocateDashboardPopulation(profile.total,profile.risk)},
+    control:{label:'控制情况分布',view:'pie',total:profile.total,data:allocateDashboardPopulation(profile.total,profile.control)},
+    adherence:{label:'依从性分布',view:'pie',total:profile.total,data:allocateDashboardPopulation(profile.total,profile.adherence)}
   });
-
-  create('servicePieChart',{
-    color:['#397bf0','#45b49b','#ff8b2d','#765cd7','#6c7b96'],
-    tooltip:{trigger:'item',formatter:'{b}<br/>{c}%'},
-    legend:{orient:'vertical',right:8,top:'center',itemWidth:10,itemHeight:10,textStyle:{color:textColor,fontSize:11}},
-    series:[{name:'服务方式',type:'pie',radius:['42%','66%'],center:['34%','53%'],label:{show:false},emphasis:{scale:true,scaleSize:8,label:{show:true,fontSize:13,fontWeight:700,formatter:'{d}%'}},data:[
-      {value:46.5,name:'AI外呼'},{value:31.2,name:'消息推送'},{value:10.3,name:'人工外呼'},{value:5.8,name:'医生人工处理'},{value:6.2,name:'其他'}
-    ]}]
+  let currentProfile={...dashboardDiseaseProfiles['慢性肾病 CKD'],name:'慢性肾病 CKD'};
+  let crowdSets=buildCrowdSets(currentProfile);
+  let currentCrowdKey='age';
+  const crowdColors=['#2d87f5','#38d1c0','#75b8ca','#ffba45','#a47af4','#7487a6'];
+  const crowdOption=key=>{
+    const set=crowdSets[key];
+    const total=set.total||set.data.reduce((sum,item)=>sum+item.value,0);
+    const percentage=value=>`${(value/total*100).toFixed(1)}%`;
+    if(set.view==='bar'){
+      return {
+        color:crowdColors,
+        title:{show:false},
+        legend:{show:false},
+        tooltip:{...tooltipBase,trigger:'axis',axisPointer:{type:'shadow'},formatter:params=>`${params[0].name}<br/>${formatCount(params[0].value)} 人（${percentage(params[0].value)}）`},
+        grid:{left:112,right:112,top:18,bottom:16},
+        xAxis:{type:'value',show:false,max:value=>Math.ceil(value.max*1.32)},
+        yAxis:{type:'category',inverse:true,data:set.data.map(item=>item.name),axisLine:{show:false},axisTick:{show:false},axisLabel:{color:titleColor,fontSize:14,fontWeight:700}},
+        series:[{name:set.label,type:'bar',barWidth:set.data.length>6?10:16,data:set.data.map(item=>item.value),label:{show:true,position:'right',distance:10,color:titleColor,fontSize:14,fontWeight:400,formatter:params=>`${formatCount(params.value)}  (${percentage(params.value)})`},itemStyle:{color:blueGradient,borderRadius:4}}]
+      };
+    }
+    const lookup=Object.fromEntries(set.data.map(item=>[item.name,item]));
+    return {
+      color:crowdColors,
+      title:{show:true,text:formatCount(total),subtext:'总人数',left:'28%',top:'39%',textAlign:'center',textStyle:{color:titleColor,fontSize:14,fontWeight:400},subtextStyle:{color:textColor,fontSize:14,fontWeight:400,lineHeight:24}},
+      tooltip:{...tooltipBase,trigger:'item',formatter:params=>`${params.name}<br/>${formatCount(params.value)} 人（${percentage(params.value)}）`},
+      legend:{
+        show:true,orient:'vertical',right:'2%',top:'middle',itemWidth:9,itemHeight:9,itemGap:12,
+        textStyle:{color:textColor,fontSize:14,fontWeight:400,lineHeight:24,rich:{name:{width:96,color:titleColor,fontSize:14,fontWeight:700},num:{width:126,align:'right',color:textColor,fontSize:14,fontWeight:400}}},
+        formatter:name=>{const item=lookup[name];return `{name|${name}} {num|${formatCount(item.value)}人（${percentage(item.value)}）}`;}
+      },
+      xAxis:{show:false},
+      yAxis:{show:false},
+      series:[{name:set.label,type:'pie',roseType:set.view==='rose'?'radius':false,radius:set.view==='rose'?['34%','72%']:['47%','70%'],center:['28%','52%'],label:{show:false},emphasis:{scaleSize:6},data:set.data}]
+    };
+  };
+  const crowdChart=create('crowdAnalysisChart',crowdOption('age'));
+  const regionLevelSwitch=root.querySelector('#regionLevelSwitch');
+  root.querySelector('.quality-analysis-tabs').addEventListener('click',event=>{
+    const button=event.target.closest('[data-analysis-key]');
+    if(!button||button.classList.contains('active'))return;
+    root.querySelectorAll('.quality-analysis-tabs button').forEach(item=>{
+      const selected=item===button;
+      item.classList.toggle('active',selected);
+      item.setAttribute('aria-selected',String(selected));
+    });
+    currentCrowdKey=button.dataset.analysisKey;
+    regionLevelSwitch.hidden=currentCrowdKey!=='region';
+    root.querySelector('.quality-crowd').classList.toggle('show-region-level',currentCrowdKey==='region');
+    crowdChart.setOption(crowdOption(currentCrowdKey),true);
   });
+  const sourceOption=profile=>{
+    const sourceData=allocateDashboardPopulation(profile.total,profile.source);
+    const sourceLookup=Object.fromEntries(sourceData.map(item=>[item.name,item]));
+    const sourcePercent=value=>`${(value/profile.total*100).toFixed(1)}%`;
+    return {
+      color:['#257df5','#38cfbf','#ffb842','#9c7cf2','#98a6bd'],
+      tooltip:{...tooltipBase,trigger:'item',formatter:params=>`${params.name}<br/>${formatCount(params.value)} 人（${sourcePercent(params.value)}）`},
+      title:{text:formatCount(profile.total),subtext:'总人数',left:'28%',top:'40%',textAlign:'center',textStyle:{color:titleColor,fontSize:14,fontWeight:400},subtextStyle:{color:textColor,fontSize:14,fontWeight:400,lineHeight:24}},
+      legend:{
+        orient:'vertical',right:'2%',top:'middle',itemWidth:9,itemHeight:9,itemGap:14,
+        textStyle:{fontSize:14,fontWeight:400,lineHeight:24,color:textColor,rich:{name:{width:88,color:titleColor,fontSize:14,fontWeight:700},num:{width:108,align:'right',color:textColor,fontSize:14,fontWeight:400}}},
+        formatter:name=>{const item=sourceLookup[name];return `{name|${name}} {num|${formatCount(item.value)}人（${sourcePercent(item.value)}）}`;}
+      },
+      series:[{type:'pie',radius:['47%','70%'],center:['28%','52%'],label:{show:false},data:sourceData}]
+    };
+  };
+  const sourceChart=create('sourceDonutChart',sourceOption(currentProfile));
 
-  create('resourceBarChart',{
-    color:['#397bf0','#45b49b','#ff8b2d','#765cd7'],tooltip,
-    legend:{top:2,itemWidth:10,itemHeight:7,textStyle:{color:textColor,fontSize:10}},
-    grid:{left:46,right:14,top:42,bottom:30},
-    xAxis:{type:'category',data:['05-01','05-06','05-11','05-16','05-21','05-26','05-31'],axisLine,axisTick:{show:false},axisLabel:{color:textColor,fontSize:10}},
-    yAxis:{type:'value',axisLine:{show:false},axisTick:{show:false},axisLabel:{color:textColor,fontSize:10},splitLine},
-    series:[
-      {name:'AI外呼次数',type:'bar',barMaxWidth:10,data:[15800,16200,15700,15400,14900,14600,14100],itemStyle:{borderRadius:[3,3,0,0]}},
-      {name:'消息推送次数',type:'bar',barMaxWidth:10,data:[6200,6800,6500,7200,6900,7400,7100],itemStyle:{borderRadius:[3,3,0,0]}},
-      {name:'人工外呼次数',type:'bar',barMaxWidth:10,data:[3400,3600,4100,3700,3900,4200,4000],itemStyle:{borderRadius:[3,3,0,0]}},
-      {name:'人工处理量',type:'bar',barMaxWidth:10,data:[2100,2300,2200,2500,2400,2600,2350],itemStyle:{borderRadius:[3,3,0,0]}}
-    ]
-  });
+  const diseaseAnalysisData=profile=>allocateDashboardPopulation(
+    profile.total,
+    dashboardDiseaseAnalysisProfiles[profile.name]||profile.comorbidity
+  );
+  const verticalBarOption=(profile,data=diseaseAnalysisData(profile))=>{
+    const percentages=data.map(item=>`${(item.value/profile.total*100).toFixed(1)}%`);
+    const maxValue=Math.max(...data.map(item=>item.value));
+    const rawStep=maxValue/4;
+    const magnitude=10**Math.floor(Math.log10(rawStep));
+    const normalizedStep=rawStep/magnitude;
+    const stepFactor=normalizedStep<=1?1:normalizedStep<=2?2:normalizedStep<=2.5?2.5:normalizedStep<=5?5:10;
+    const axisStep=stepFactor*magnitude;
+    const axisMax=Math.ceil(maxValue/axisStep)*axisStep;
+    return {
+      tooltip:{
+        ...tooltipBase,
+        trigger:'axis',
+        axisPointer:{type:'shadow'},
+        formatter:params=>`${params[0].name}<br/>${formatCount(params[0].value)} 人（${percentages[params[0].dataIndex]}）`
+      },
+      grid:{left:50,right:18,top:38,bottom:74},
+      xAxis:{
+        type:'category',
+        data:data.map(item=>item.name),
+        axisLine,
+        axisTick:{show:false},
+        axisLabel:{
+          interval:0,
+          color:'#536888',
+          fontFamily:'Microsoft YaHei, sans-serif',
+          fontSize:11,
+          fontWeight:400,
+          lineHeight:16,
+          formatter:value=>value.replace(/^单纯/,'单纯\n').replace(/^合并/,'合并\n')
+        }
+      },
+      yAxis:{
+        type:'value',
+        min:0,
+        max:axisMax,
+        interval:axisStep,
+        axisLine:{show:false},
+        axisTick:{show:false},
+        axisLabel:{color:textColor,fontSize:14,fontWeight:700,formatter:value=>formatCount(value)},
+        splitLine
+      },
+      series:[{
+        type:'bar',
+        barMaxWidth:34,
+        data:data.map(item=>item.value),
+        label:{
+          show:true,
+          position:'top',
+          distance:6,
+          color:titleColor,
+          fontSize:14,
+          fontWeight:400,
+          formatter:params=>formatCount(params.value)
+        },
+        itemStyle:{color:verticalBlueGradient,borderRadius:[5,5,0,0]}
+      }]
+    };
+  };
+  const diseaseChart=create('diseaseDistributionChart',verticalBarOption(currentProfile));
 
-  create('referralFunnelChart',{
-    color:['#397bf0','#72a8f2','#a9c9ef'],
-    tooltip:{trigger:'item',formatter:'{b}<br/>{c} 人'},
-    series:[{name:'转诊流程',type:'funnel',left:'8%',top:8,bottom:8,width:'84%',min:0,max:2026,minSize:'48%',maxSize:'100%',sort:'descending',gap:3,label:{show:true,position:'inside',color:'#fff',fontSize:10,formatter:'{b}  {c}'},labelLine:{show:false},itemStyle:{borderColor:'#fff',borderWidth:1},emphasis:{label:{fontSize:12,fontWeight:700}},data:[
-      {value:2026,name:'完成评估'},{value:1256,name:'向上转诊'},{value:1100,name:'向下转诊'}
-    ]}]
+  const funnelOption=(name,data,max)=>({
+    color:['#d8e8fb','#e1edfb','#eaf3fc','#f0f6fd'],
+    tooltip:{...tooltipBase,trigger:'item',formatter:params=>`${params.name}<br/>${formatCount(params.value)} 人`},
+    series:[{
+      name,type:'funnel',left:'4%',top:4,bottom:2,width:'92%',min:0,max,minSize:'34%',maxSize:'100%',sort:'descending',gap:2,
+      label:{show:true,position:'inside',color:'#2f466e',fontSize:14,fontWeight:400,formatter:params=>`${params.name}    ${formatCount(params.value)} 人`},
+      labelLine:{show:false},itemStyle:{borderColor:'#fff',borderWidth:0,borderRadius:3},emphasis:{label:{fontWeight:400}}
+    ,data}]
   });
+  const referralData=profile=>{
+    const abnormal=Math.max(1,Math.round(profile.total*.132));
+    const recommend=Math.max(1,Math.round(profile.total*.071));
+    const arrival=Math.max(1,Math.round(recommend*.78));
+    const enrolled=Math.max(1,Math.round(recommend*.661));
+    const suggested=Math.max(1,Math.round(profile.total*.052));
+    const transferred=Math.max(1,Math.round(suggested*.91));
+    const received=Math.max(1,Math.round(suggested*.85));
+    const followed=Math.max(1,Math.round(suggested*.793));
+    return {
+      up:[{value:abnormal,name:'筛查发现异常'},{value:recommend,name:'推荐上转'},{value:arrival,name:'到院就诊'},{value:enrolled,name:'确认入组'}],
+      down:[{value:suggested,name:'建议下转'},{value:transferred,name:'转出'},{value:received,name:'基层接收'},{value:followed,name:'基层随访'}]
+    };
+  };
+  const initialReferral=referralData(currentProfile);
+  const upReferralChart=create('upReferralChart',funnelOption('上转流程',initialReferral.up,initialReferral.up[0].value));
+  const downReferralChart=create('downReferralChart',funnelOption('下转流程',initialReferral.down,initialReferral.down[0].value));
 
-  create('agePieChart',{
-    color:['#68a2f5','#45b49b','#ff8b2c','#7a5bd8','#63728d'],
-    tooltip:{trigger:'item',formatter:'{b}<br/>{c}%'},
-    legend:{orient:'vertical',right:10,top:'center',itemWidth:10,itemHeight:10,textStyle:{color:textColor,fontSize:11}},
-    graphic:[{type:'text',left:'31%',top:'47%',z:100,style:{text:'32,568 人',fill:'#17223a',font:'700 15px sans-serif',textAlign:'center',textVerticalAlign:'middle'}}],
-    series:[{name:'年龄分布',type:'pie',radius:['43%','68%'],center:['31%','52%'],label:{show:false},emphasis:{scaleSize:7},data:[
-      {value:1.2,name:'18岁以下'},{value:12.5,name:'18-40岁'},{value:45.3,name:'41-60岁'},{value:35.6,name:'61-80岁'},{value:5.4,name:'80岁以上'}
-    ]}]
-  });
-
-  create('crowdBarChart',{
-    color:['#397bf0'],
-    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:value=>value+'%'},
-    grid:{left:42,right:16,top:25,bottom:34},
-    xAxis:{type:'category',data:['18岁以下','18-40岁','41-60岁','61-80岁','80岁以上'],axisLine,axisTick:{show:false},axisLabel:{color:textColor,fontSize:10}},
-    yAxis:{type:'value',min:0,max:100,axisLabel:{color:textColor,formatter:'{value}%'},axisLine:{show:false},axisTick:{show:false},splitLine},
-    series:[{name:'随访完成率',type:'bar',barWidth:28,data:[60.3,72.1,79.6,81.3,76.8],label:{show:true,position:'top',formatter:'{c}%',color:'#1c2a44',fontWeight:700,fontSize:10},itemStyle:{borderRadius:[4,4,0,0]}}]
-  });
+  dashboardRuntime.updateProfile=profile=>{
+    currentProfile=profile;
+    crowdSets=buildCrowdSets(profile);
+    crowdChart.setOption(crowdOption(currentCrowdKey),true);
+    sourceChart.setOption(sourceOption(profile),true);
+    diseaseChart.setOption(verticalBarOption(profile),true);
+    const referrals=referralData(profile);
+    upReferralChart.setOption(funnelOption('上转流程',referrals.up,referrals.up[0].value),true);
+    downReferralChart.setOption(funnelOption('下转流程',referrals.down,referrals.down[0].value),true);
+    const referralRates=root.querySelectorAll('.quality-referral-grid footer strong');
+    if(referralRates[0])referralRates[0].textContent=`${(referrals.up[3].value/referrals.up[1].value*100).toFixed(1)}%`;
+    if(referralRates[1])referralRates[1].textContent=`${(referrals.down[3].value/referrals.down[0].value*100).toFixed(1)}%`;
+  };
 
   dashboardChartsReady=true;
+  refreshDashboardMetrics();
   const initialRangeStart=parseDashboardDate(root.querySelector('#dashStartDate').value);
   const initialRangeEnd=parseDashboardDate(root.querySelector('#dashEndDate').value);
   updateDashboardTimeCharts(

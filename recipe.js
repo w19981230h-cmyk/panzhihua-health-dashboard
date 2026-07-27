@@ -293,7 +293,7 @@ function buildRecipePage() {
         <button class="recipe-column-button" id="recipeColumnButton" type="button" aria-label="管理显示列">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="13" height="17" rx="2"></rect><path d="M8 3v17m4-17v10"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v4m-2-2h4"></path></svg>
         </button>
-        <button class="recipe-create-button" id="recipeCreate" type="button"><b>＋</b>新建食谱</button>
+        <button class="recipe-create-button" id="recipeCreate" type="button"><b>+</b><span>新建食谱</span></button>
       </div>
       <div class="recipe-extra-filters" id="recipeExtraFilters" hidden>
         ${recipeSelect('适用病种', 'recipeDisease', ['高血压', '糖尿病', '高脂血症', '肥胖'], true)}

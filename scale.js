@@ -97,7 +97,6 @@ const medicalScaleCatalog = [
   ]]
 ];
 
-const medicalCreators=['平台技术人员','羊医生','茉莉','桔梗'];
 const scaleRows=medicalScaleCatalog.flatMap(([disease,names])=>names.map((scaleName,localIndex)=>({
   disease,
   name:`【${disease}】${scaleName}`,
@@ -105,7 +104,7 @@ const scaleRows=medicalScaleCatalog.flatMap(([disease,names])=>names.map((scaleN
   tasks:(localIndex*2+disease.length)%9,
   version:`第${localIndex%3+1}版`,
   versions:localIndex%3+1,
-  creator:medicalCreators[(localIndex+disease.length)%medicalCreators.length],
+  creator:'张海明',
   createdAt:`2026/${String(7-Math.floor(medicalScaleCatalog.findIndex(item=>item[0]===disease)/2)).padStart(2,'0')}/${String(24-localIndex).padStart(2,'0')} ${String(9+localIndex%8).padStart(2,'0')}:${String(12+localIndex*4).padStart(2,'0')}:00`,
   published:localIndex!==9,
   enabled:localIndex%5!==4
