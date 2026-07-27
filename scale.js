@@ -117,7 +117,7 @@ scaleRows[0].children=[{
   children:undefined
 }];
 
-const scaleState = {query:'',page:1,size:20,expanded:new Set([0])};
+const scaleState = {query:'',page:1,size:10,expanded:new Set([0])};
 
 function buildScalePage(){
   const page=document.createElement('section');
@@ -157,7 +157,7 @@ function buildScalePage(){
         <button class="scale-page-arrow" id="scalePrev" type="button" aria-label="上一页">‹</button>
         <div class="scale-page-numbers" id="scalePageNumbers"></div>
         <button class="scale-page-arrow" id="scaleNext" type="button" aria-label="下一页">›</button>
-        <label class="scale-size"><select aria-label="每页条数"><option value="20">20 条/页</option></select><i></i></label>
+        <label class="scale-size"><select aria-label="每页条数"><option value="10">10 条/页</option></select><i></i></label>
         <span>跳至</span><input id="scaleJump" type="number" min="1" aria-label="跳转页码"><span>页</span>
       </footer>
     </section>`;

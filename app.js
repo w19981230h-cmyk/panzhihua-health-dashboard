@@ -32,7 +32,7 @@ const baseRows = [
   ['罗桂英','PZH260728','73岁','女','189****6742','全科医学科','高血压合并慢性心力衰竭','心脏起搏器植入术','2026-07-03','高血压规范管理']
 ].map((row,index)=>[...row.slice(0,4),managementStatuses[index%managementStatuses.length],...row.slice(4)]);
 
-const state={page:1,size:20,query:'',team:'',managementStatus:[],gender:'',minAge:'',maxAge:'',visible:columns.map(()=>true)};
+const state={page:1,size:10,query:'',team:'',managementStatus:[],gender:'',minAge:'',maxAge:'',visible:columns.map(()=>true)};
 const $=s=>document.querySelector(s);
 const head=$('#tableHead'),body=$('#tableBody'),empty=$('#emptyState');
 const managementSelect=$('#managementStatusSelect');
@@ -150,6 +150,21 @@ document.querySelectorAll('.subnav button').forEach(btn=>btn.addEventListener('c
   if(!opensPerformanceDashboard)$('#pageTitle').textContent=btn.dataset.page;
   showToast(`已切换至${btn.dataset.page}`);
 }));
+
+const directListPages={
+  patients:'全部患者',
+  recipes:'食谱管理',
+  articles:'文章管理',
+  scales:'量表管理',
+  assessments:'评估报告'
+};
+
+window.addEventListener('load',()=>{
+  const pageName=directListPages[new URLSearchParams(window.location.search).get('page')];
+  if(!pageName)return;
+  const button=[...document.querySelectorAll('.subnav button')].find(item=>item.dataset.page===pageName);
+  if(button)button.click();
+});
 document.querySelectorAll('.nav-toggle').forEach(btn=>btn.addEventListener('click',()=>{
   const group=btn.closest('.nav-group');
   const open=group.classList.toggle('open');

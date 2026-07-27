@@ -237,7 +237,7 @@ while (recipeRows.length < 100) {
 }
 
 const RECIPE_VIRTUAL_TOTAL = 25690;
-const RECIPE_PAGE_SIZE = 20;
+const RECIPE_PAGE_SIZE = 10;
 
 const recipeState = {
   query: '',
@@ -327,7 +327,7 @@ function buildRecipePage() {
           <button class="recipe-page-arrow" id="recipePrevPage" type="button" disabled>‹</button>
           <div class="recipe-page-numbers" id="recipePageNumbers"></div>
           <button class="recipe-page-arrow" id="recipeNextPage" type="button">›</button>
-          <label class="recipe-size"><select id="recipePageSize" aria-label="每页条数"><option value="20" selected>20条/页</option></select><i></i></label>
+          <label class="recipe-size"><select id="recipePageSize" aria-label="每页条数"><option value="10" selected>10条/页</option></select><i></i></label>
           <span>跳至</span><input id="recipeJumpPage" type="number" min="1" max="1000" aria-label="跳转页码">
         </div>
       </footer>

@@ -79,7 +79,7 @@ const assessmentReports=Array.from({length:200},(_,index)=>{
   };
 });
 
-const assessmentState = {query:'', output:'', status:'', page:1, size:20};
+const assessmentState = {query:'', output:'', status:'', page:1, size:10};
 
 function buildAssessmentReportPage(){
   const page=document.createElement('section');
@@ -132,7 +132,7 @@ function buildAssessmentReportPage(){
         <button class="assessment-page-arrow" id="assessmentPrev" type="button" aria-label="上一页">‹</button>
         <div class="assessment-page-numbers" id="assessmentPageNumbers"></div>
         <button class="assessment-page-arrow" id="assessmentNext" type="button" aria-label="下一页">›</button>
-        <label class="assessment-size"><select aria-label="每页条数"><option value="20">20 条/页</option></select><i></i></label>
+        <label class="assessment-size"><select aria-label="每页条数"><option value="10">10 条/页</option></select><i></i></label>
       </footer>
     </section>`;
   document.querySelector('.main-content').appendChild(page);

@@ -84,7 +84,7 @@ const articleRows = articleDiseaseCatalog.flatMap(([disease, titles], diseaseInd
 const articleState = {
   query: '',
   page: 1,
-  size: 20
+  size: 10
 };
 
 function buildArticlePage() {
@@ -134,7 +134,7 @@ function buildArticlePage() {
         <button id="articleNext" type="button" aria-label="下一页">›</button>
         <label class="article-size">
           <select id="articlePageSize" aria-label="每页条数">
-            <option value="20">20 条/页</option>
+            <option value="10">10 条/页</option>
           </select><i aria-hidden="true"></i>
         </label>
         <span>跳至</span>
