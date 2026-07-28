@@ -191,6 +191,74 @@ function buildDashboardSelect(label,options,filterKey=''){
   </div>`;
 }
 
+const dashboardDrilldownData={
+  city:['全市','东区','西区','仁和区','米易县','盐边县'],
+  medicalGroup:{
+    全市:['医疗集团','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],
+    东区:['医疗集团','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],
+    西区:['医疗集团','攀枝花市紧密型城市医疗集团'],
+    仁和区:['医疗集团','攀枝花市紧密型城市医疗集团'],
+    米易县:['医疗集团','攀枝花市县域医疗共同体'],
+    盐边县:['医疗集团','攀枝花市县域医疗共同体']
+  },
+  organization:{
+    医疗集团:['机构','攀枝花市中心医院','攀枝花市中西医结合医院','攀枝花学院附属医院','仁和区人民医院'],
+    攀枝花市紧密型城市医疗集团:['机构','攀枝花市中心医院','攀枝花市中西医结合医院','仁和区人民医院'],
+    攀枝花学院附属医院医联体:['机构','攀枝花学院附属医院','攀枝花市第二人民医院'],
+    攀枝花市县域医疗共同体:['机构','米易县人民医院','盐边县人民医院']
+  },
+  team:{
+    机构:['团队','心血管慢病管理团队','糖尿病管理团队','呼吸慢病管理团队','家庭医生管理团队'],
+    攀枝花市中心医院:['团队','心血管慢病管理团队','糖尿病管理团队','呼吸慢病管理团队'],
+    攀枝花市中西医结合医院:['团队','中西医慢病联合管理团队','健康管理团队'],
+    攀枝花学院附属医院:['团队','高血压管理团队','糖尿病管理团队'],
+    攀枝花市第二人民医院:['团队','老年慢病管理团队'],
+    仁和区人民医院:['团队','家庭医生管理团队'],
+    米易县人民医院:['团队','县域慢病管理团队'],
+    盐边县人民医院:['团队','县域慢病管理团队']
+  },
+  person:{
+    团队:['个人','张医生','李医生','王医生','刘医生'],
+    心血管慢病管理团队:['个人','张医生','王医生'],
+    糖尿病管理团队:['个人','李医生','刘医生'],
+    呼吸慢病管理团队:['个人','陈医生','赵医生'],
+    中西医慢病联合管理团队:['个人','周医生','何医生'],
+    健康管理团队:['个人','孙医生','杨医生'],
+    高血压管理团队:['个人','张医生','陈医生'],
+    老年慢病管理团队:['个人','何医生','周医生'],
+    家庭医生管理团队:['个人','刘医生','赵医生'],
+    县域慢病管理团队:['个人','王医生','杨医生']
+  }
+};
+
+function setDashboardSelectOptions(select,options){
+  select.dataset.selectedIndex='0';
+  const value=options[0];
+  const trigger=select.querySelector('.dash-ant-select-selector');
+  trigger.setAttribute('aria-label',value);
+  select.querySelector('.dash-ant-select-value').textContent=value;
+  select.querySelector('.dash-ant-select-dropdown').innerHTML=options.map((option,index)=>`
+    <button class="dash-ant-select-option${index===0?' selected':''}" type="button" role="option" data-index="${index}" data-value="${option}" aria-selected="${index===0}">
+      <span>${option}</span><i aria-hidden="true">✓</i>
+    </button>`).join('');
+}
+
+function updateDashboardDrilldown(root,changedKey){
+  const order=['city','medicalGroup','organization','team','person'];
+  const changedIndex=order.indexOf(changedKey);
+  order.slice(changedIndex+1).forEach(key=>{
+    const select=root.querySelector(`[data-filter-key="${key}"]`);
+    if(!select)return;
+    let parentValue='';
+    if(key==='medicalGroup')parentValue=root.querySelector('[data-filter-key="city"] .dash-ant-select-value')?.textContent.trim();
+    if(key==='organization')parentValue=root.querySelector('[data-filter-key="medicalGroup"] .dash-ant-select-value')?.textContent.trim();
+    if(key==='team')parentValue=root.querySelector('[data-filter-key="organization"] .dash-ant-select-value')?.textContent.trim();
+    if(key==='person')parentValue=root.querySelector('[data-filter-key="team"] .dash-ant-select-value')?.textContent.trim();
+    const options=dashboardDrilldownData[key][parentValue]||dashboardDrilldownData[key][Object.keys(dashboardDrilldownData[key])[0]];
+    setDashboardSelectOptions(select,options);
+  });
+}
+
 function parseDashboardDate(value){
   const [year,month,day]=value.split('-').map(Number);
   return new Date(year,month-1,day);
@@ -556,11 +624,11 @@ function buildPerformanceDashboard(){
             <div class="dash-calendar-panels" id="dashCalendarPanels"></div>
           </div>
         </div>
-        ${buildDashboardSelect('全部',['全部','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],'medicalAlliance')}
-        ${buildDashboardSelect('全部',['全部','攀枝花市中心医院','攀枝花市中西医结合医院','仁和区人民医院'],'organization')}
-        ${buildDashboardSelect('全部',['全部','心血管内科','内分泌科','呼吸与危重症医学科'],'department')}
-        ${buildDashboardSelect('慢性肾病 CKD',['慢性肾病 CKD','高血压','糖尿病','冠心病','脑卒中','慢阻肺 COPD','血脂异常','肥胖/减重管理'],'disease')}
-        ${buildDashboardSelect('全部',['全部','张医生','李医生','王医生'],'person')}
+        ${buildDashboardSelect('全市',dashboardDrilldownData.city,'city')}
+        ${buildDashboardSelect('医疗集团',dashboardDrilldownData.medicalGroup['全市'],'medicalGroup')}
+        ${buildDashboardSelect('机构',dashboardDrilldownData.organization['医疗集团'],'organization')}
+        ${buildDashboardSelect('团队',dashboardDrilldownData.team['机构'],'team')}
+        ${buildDashboardSelect('个人',dashboardDrilldownData.person['团队'],'person')}
       </div>
       <section class="quality-panel quality-overview">
         <header class="quality-panel-head">
@@ -646,6 +714,7 @@ function buildPerformanceDashboard(){
         item.classList.toggle('selected',selected);
         item.setAttribute('aria-selected',String(selected));
       });
+      updateDashboardDrilldown(root,select.dataset.filterKey);
       closeDashboardSelects();
       refreshDashboardMetrics();
       return;
@@ -684,19 +753,21 @@ function buildPerformanceDashboard(){
 function refreshDashboardMetrics(){
   const root=$('#performanceDashboard');
   if(!root)return;
-  const diseaseName=root.querySelector('[data-filter-key="disease"] .dash-ant-select-value')?.textContent.trim()||'慢性肾病 CKD';
+  const diseaseName='慢性肾病 CKD';
   const baseProfile=dashboardDiseaseProfiles[diseaseName]||dashboardDiseaseProfiles['慢性肾病 CKD'];
-  const allianceIndex=Number(root.querySelector('[data-filter-key="medicalAlliance"]')?.dataset.selectedIndex||0);
+  const cityIndex=Number(root.querySelector('[data-filter-key="city"]')?.dataset.selectedIndex||0);
+  const medicalGroupIndex=Number(root.querySelector('[data-filter-key="medicalGroup"]')?.dataset.selectedIndex||0);
   const organizationIndex=Number(root.querySelector('[data-filter-key="organization"]')?.dataset.selectedIndex||0);
-  const departmentIndex=Number(root.querySelector('[data-filter-key="department"]')?.dataset.selectedIndex||0);
+  const teamIndex=Number(root.querySelector('[data-filter-key="team"]')?.dataset.selectedIndex||0);
   const personIndex=Number(root.querySelector('[data-filter-key="person"]')?.dataset.selectedIndex||0);
-  const allianceFactors=[1,.62,.38];
-  const organizationFactors=[1,.42,.31,.27];
-  const departmentFactors=[1,.38,.34,.28];
+  const cityFactors=[1,.34,.16,.22,.15,.13];
+  const medicalGroupFactors=[1,.62,.38];
+  const organizationFactors=[1,.42,.31,.27,.24];
+  const teamFactors=[1,.38,.34,.28,.24];
   const personFactors=[1,.36,.33,.31];
-  const factor=(allianceFactors[allianceIndex]||1)*(organizationFactors[organizationIndex]||1)*
-    (departmentFactors[departmentIndex]||1)*(personFactors[personIndex]||1);
-  const rateOffset=allianceIndex*.1+organizationIndex*.2-departmentIndex*.1+personIndex*.08;
+  const factor=(cityFactors[cityIndex]||1)*(medicalGroupFactors[medicalGroupIndex]||1)*
+    (organizationFactors[organizationIndex]||1)*(teamFactors[teamIndex]||1)*(personFactors[personIndex]||1);
+  const rateOffset=cityIndex*.04+medicalGroupIndex*.1+organizationIndex*.2-teamIndex*.1+personIndex*.08;
   const liveTotal=baseProfile.total+dashboardLiveTick*Math.max(1,Math.round(baseProfile.total*.0004));
   const liveNewPatients=baseProfile.newPatients+dashboardLiveTick*Math.max(1,Math.round(baseProfile.newPatients*.003));
   const profile={
