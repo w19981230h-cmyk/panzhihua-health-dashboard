@@ -241,9 +241,6 @@ const RECIPE_PAGE_SIZE = 10;
 
 const recipeState = {
   query: '',
-  category: '',
-  meal: '',
-  disease: '',
   healthTag: '',
   source: '',
   enabled: '',
@@ -269,16 +266,6 @@ function recipeSelect(label, id, options, compact = false) {
   </label>`;
 }
 
-function recipeDirectFilter(label, key, options) {
-  return `<div class="recipe-direct-filter" data-recipe-direct-filter="${key}">
-    <span class="recipe-direct-filter-label">${label}</span>
-    <div class="recipe-direct-filter-options" role="group" aria-label="${label}">
-      <button class="active" type="button" data-value="" aria-pressed="true">全部</button>
-      ${options.map(option => `<button type="button" data-value="${option}" aria-pressed="false">${option}</button>`).join('')}
-    </div>
-  </div>`;
-}
-
 function buildRecipePage() {
   const page = document.createElement('section');
   page.id = 'recipePage';
@@ -301,11 +288,6 @@ function buildRecipePage() {
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="13" height="17" rx="2"></rect><path d="M8 3v17m4-17v10"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v4m-2-2h4"></path></svg>
         </button>
         <button class="recipe-create-button" id="recipeCreate" type="button"><b>+</b><span>新建食谱</span></button>
-      </div>
-      <div class="recipe-direct-filters">
-        ${recipeDirectFilter('食谱分类', 'category', ['菜品', '汤粥', '主食'])}
-        ${recipeDirectFilter('适用餐次', 'meal', ['早餐', '午餐', '晚餐'])}
-        ${recipeDirectFilter('适用病种', 'disease', ['高血压', '糖尿病', '高脂血症', '肥胖'])}
       </div>
     </section>
 
@@ -424,9 +406,6 @@ function filteredRecipes() {
   const query = recipeState.query.trim().toLowerCase();
   return recipeRows.filter(row =>
     (!query || row.name.toLowerCase().includes(query)) &&
-    (!recipeState.category || row.category === recipeState.category) &&
-    (!recipeState.meal || row.meal === recipeState.meal) &&
-    (!recipeState.disease || row.diseases.includes(recipeState.disease)) &&
     (!recipeState.healthTag || row.tags.includes(recipeState.healthTag)) &&
     (!recipeState.source || row.source === recipeState.source) &&
     (!recipeState.enabled || (recipeState.enabled === '启用') === row.enabled)
@@ -523,21 +502,6 @@ recipePage.querySelector('#recipeSearch').addEventListener('input', event => {
   recipeState.page = 1;
   renderRecipes();
 }));
-
-recipePage.querySelectorAll('[data-recipe-direct-filter]').forEach(group => {
-  group.addEventListener('click', event => {
-    const button = event.target.closest('[data-value]');
-    if (!button) return;
-    group.querySelectorAll('[data-value]').forEach(item => {
-      const selected = item === button;
-      item.classList.toggle('active', selected);
-      item.setAttribute('aria-pressed', String(selected));
-    });
-    recipeState[group.dataset.recipeDirectFilter] = button.dataset.value;
-    recipeState.page = 1;
-    renderRecipes();
-  });
-});
 
 recipePage.querySelector('#recipePrevPage').addEventListener('click', () => {
   if (recipeState.page > 1) {
