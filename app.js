@@ -556,11 +556,11 @@ function buildPerformanceDashboard(){
             <div class="dash-calendar-panels" id="dashCalendarPanels"></div>
           </div>
         </div>
-        ${buildDashboardSelect('全部医联体',['全部医联体','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],'medicalAlliance')}
-        ${buildDashboardSelect('全部机构',['全部机构','攀枝花市中心医院','攀枝花市中西医结合医院','仁和区人民医院'],'organization')}
-        ${buildDashboardSelect('全部团队',['全部团队','慢病联合管理团队','高血压管理团队','糖尿病管理团队'],'team')}
+        ${buildDashboardSelect('全部',['全部','攀枝花市紧密型城市医疗集团','攀枝花学院附属医院医联体'],'medicalAlliance')}
+        ${buildDashboardSelect('全部',['全部','攀枝花市中心医院','攀枝花市中西医结合医院','仁和区人民医院'],'organization')}
+        ${buildDashboardSelect('全部',['全部','心血管内科','内分泌科','呼吸与危重症医学科'],'department')}
         ${buildDashboardSelect('慢性肾病 CKD',['慢性肾病 CKD','高血压','糖尿病','冠心病','脑卒中','慢阻肺 COPD','血脂异常','肥胖/减重管理'],'disease')}
-        ${buildDashboardSelect('全部人员',['全部人员','张医生','李医生','王医生'],'person')}
+        ${buildDashboardSelect('全部',['全部','张医生','李医生','王医生'],'person')}
       </div>
       <section class="quality-panel quality-overview">
         <header class="quality-panel-head">
@@ -688,15 +688,15 @@ function refreshDashboardMetrics(){
   const baseProfile=dashboardDiseaseProfiles[diseaseName]||dashboardDiseaseProfiles['慢性肾病 CKD'];
   const allianceIndex=Number(root.querySelector('[data-filter-key="medicalAlliance"]')?.dataset.selectedIndex||0);
   const organizationIndex=Number(root.querySelector('[data-filter-key="organization"]')?.dataset.selectedIndex||0);
-  const teamIndex=Number(root.querySelector('[data-filter-key="team"]')?.dataset.selectedIndex||0);
+  const departmentIndex=Number(root.querySelector('[data-filter-key="department"]')?.dataset.selectedIndex||0);
   const personIndex=Number(root.querySelector('[data-filter-key="person"]')?.dataset.selectedIndex||0);
   const allianceFactors=[1,.62,.38];
   const organizationFactors=[1,.42,.31,.27];
-  const teamFactors=[1,.38,.34,.28];
+  const departmentFactors=[1,.38,.34,.28];
   const personFactors=[1,.36,.33,.31];
   const factor=(allianceFactors[allianceIndex]||1)*(organizationFactors[organizationIndex]||1)*
-    (teamFactors[teamIndex]||1)*(personFactors[personIndex]||1);
-  const rateOffset=allianceIndex*.1+organizationIndex*.2-teamIndex*.1+personIndex*.08;
+    (departmentFactors[departmentIndex]||1)*(personFactors[personIndex]||1);
+  const rateOffset=allianceIndex*.1+organizationIndex*.2-departmentIndex*.1+personIndex*.08;
   const liveTotal=baseProfile.total+dashboardLiveTick*Math.max(1,Math.round(baseProfile.total*.0004));
   const liveNewPatients=baseProfile.newPatients+dashboardLiveTick*Math.max(1,Math.round(baseProfile.newPatients*.003));
   const profile={
