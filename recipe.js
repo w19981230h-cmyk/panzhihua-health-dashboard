@@ -269,6 +269,16 @@ function recipeSelect(label, id, options, compact = false) {
   </label>`;
 }
 
+function recipeDirectFilter(label, key, options) {
+  return `<div class="recipe-direct-filter" data-recipe-direct-filter="${key}">
+    <span class="recipe-direct-filter-label">${label}</span>
+    <div class="recipe-direct-filter-options" role="group" aria-label="${label}">
+      <button class="active" type="button" data-value="" aria-pressed="true">全部</button>
+      ${options.map(option => `<button type="button" data-value="${option}" aria-pressed="false">${option}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
 function buildRecipePage() {
   const page = document.createElement('section');
   page.id = 'recipePage';
@@ -284,22 +294,18 @@ function buildRecipePage() {
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
           </div>
         </label>
-        ${recipeSelect('食谱分类', 'recipeCategory', ['菜品', '汤粥', '主食'], true)}
-        ${recipeSelect('适用餐次', 'recipeMeal', ['早餐', '午餐', '晚餐'], true)}
-        <button class="recipe-more-button" id="recipeMoreFilters" type="button" aria-expanded="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8Z"></path><path d="M17 17h5m-2.5-2.5v5"></path></svg>
-          <span>更多筛选</span>
-        </button>
+        ${recipeSelect('健康标签', 'recipeHealthTag', ['低盐', '低糖', '低脂', '高蛋白', '高纤维', '低GI', '补钙'], true)}
+        ${recipeSelect('来源', 'recipeSource', ['手动新增', '文件导入'], true)}
+        ${recipeSelect('状态', 'recipeEnabled', ['启用', '停用'], true)}
         <button class="recipe-column-button" id="recipeColumnButton" type="button" aria-label="管理显示列">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="13" height="17" rx="2"></rect><path d="M8 3v17m4-17v10"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v4m-2-2h4"></path></svg>
         </button>
         <button class="recipe-create-button" id="recipeCreate" type="button"><b>+</b><span>新建食谱</span></button>
       </div>
-      <div class="recipe-extra-filters" id="recipeExtraFilters" hidden>
-        ${recipeSelect('适用病种', 'recipeDisease', ['高血压', '糖尿病', '高脂血症', '肥胖'], true)}
-        ${recipeSelect('健康标签', 'recipeHealthTag', ['低盐', '低糖', '低脂', '高蛋白', '高纤维', '低GI', '补钙'], true)}
-        ${recipeSelect('来源', 'recipeSource', ['手动新增', '文件导入'], true)}
-        ${recipeSelect('状态', 'recipeEnabled', ['启用', '停用'], true)}
+      <div class="recipe-direct-filters">
+        ${recipeDirectFilter('食谱分类', 'category', ['菜品', '汤粥', '主食'])}
+        ${recipeDirectFilter('适用餐次', 'meal', ['早餐', '午餐', '晚餐'])}
+        ${recipeDirectFilter('适用病种', 'disease', ['高血压', '糖尿病', '高脂血症', '肥胖'])}
       </div>
     </section>
 
@@ -414,9 +420,9 @@ function recipeTone(value) {
   return tones[value] || 'plain';
 }
 
-function renderRecipes() {
+function filteredRecipes() {
   const query = recipeState.query.trim().toLowerCase();
-  const rows = recipeRows.filter(row =>
+  return recipeRows.filter(row =>
     (!query || row.name.toLowerCase().includes(query)) &&
     (!recipeState.category || row.category === recipeState.category) &&
     (!recipeState.meal || row.meal === recipeState.meal) &&
@@ -425,8 +431,23 @@ function renderRecipes() {
     (!recipeState.source || row.source === recipeState.source) &&
     (!recipeState.enabled || (recipeState.enabled === '启用') === row.enabled)
   );
+}
 
-  const totalPages = Math.ceil(RECIPE_VIRTUAL_TOTAL / recipeState.size);
+function recipeVirtualTotal(rows = filteredRecipes()) {
+  if (!rows.length) return 0;
+  if (rows.length === recipeRows.length) return RECIPE_VIRTUAL_TOTAL;
+  return Math.max(rows.length, Math.round(RECIPE_VIRTUAL_TOTAL * rows.length / recipeRows.length));
+}
+
+function recipePageCount() {
+  return Math.max(1, Math.ceil(recipeVirtualTotal() / recipeState.size));
+}
+
+function renderRecipes() {
+  const rows = filteredRecipes();
+  const virtualTotal = recipeVirtualTotal(rows);
+
+  const totalPages = Math.max(1, Math.ceil(virtualTotal / recipeState.size));
   recipeState.page = Math.min(Math.max(1, recipeState.page), totalPages);
   const offset = (recipeState.page - 1) * recipeState.size;
   const shown = rows.length ? Array.from({length: recipeState.size}, (_, index) => rows[(offset + index) % rows.length]) : [];
@@ -455,7 +476,7 @@ function renderRecipes() {
   `).join('');
 
   recipeEmpty.hidden = shown.length > 0;
-  recipePage.querySelector('#recipeTotal').textContent = '共 25,690 条';
+  recipePage.querySelector('#recipeTotal').textContent = `共 ${virtualTotal.toLocaleString('zh-CN')} 条`;
   renderRecipePagination(totalPages);
 }
 
@@ -494,9 +515,6 @@ recipePage.querySelector('#recipeSearch').addEventListener('input', event => {
 });
 
 [
-  ['recipeCategory', 'category'],
-  ['recipeMeal', 'meal'],
-  ['recipeDisease', 'disease'],
   ['recipeHealthTag', 'healthTag'],
   ['recipeSource', 'source'],
   ['recipeEnabled', 'enabled']
@@ -506,6 +524,21 @@ recipePage.querySelector('#recipeSearch').addEventListener('input', event => {
   renderRecipes();
 }));
 
+recipePage.querySelectorAll('[data-recipe-direct-filter]').forEach(group => {
+  group.addEventListener('click', event => {
+    const button = event.target.closest('[data-value]');
+    if (!button) return;
+    group.querySelectorAll('[data-value]').forEach(item => {
+      const selected = item === button;
+      item.classList.toggle('active', selected);
+      item.setAttribute('aria-pressed', String(selected));
+    });
+    recipeState[group.dataset.recipeDirectFilter] = button.dataset.value;
+    recipeState.page = 1;
+    renderRecipes();
+  });
+});
+
 recipePage.querySelector('#recipePrevPage').addEventListener('click', () => {
   if (recipeState.page > 1) {
     recipeState.page -= 1;
@@ -514,7 +547,7 @@ recipePage.querySelector('#recipePrevPage').addEventListener('click', () => {
 });
 
 recipePage.querySelector('#recipeNextPage').addEventListener('click', () => {
-  const totalPages = Math.ceil(RECIPE_VIRTUAL_TOTAL / recipeState.size);
+  const totalPages = recipePageCount();
   if (recipeState.page < totalPages) {
     recipeState.page += 1;
     renderRecipes();
@@ -529,19 +562,10 @@ recipePage.querySelector('#recipePageNumbers').addEventListener('click', event =
 });
 
 recipePage.querySelector('#recipeJumpPage').addEventListener('change', event => {
-  const totalPages = Math.ceil(RECIPE_VIRTUAL_TOTAL / recipeState.size);
+  const totalPages = recipePageCount();
   recipeState.page = Math.min(totalPages, Math.max(1, Number(event.target.value) || 1));
   event.target.value = '';
   renderRecipes();
-});
-
-recipePage.querySelector('#recipeMoreFilters').addEventListener('click', event => {
-  const button = event.currentTarget;
-  const expanded = button.getAttribute('aria-expanded') === 'true';
-  button.setAttribute('aria-expanded', String(!expanded));
-  button.querySelector('span').textContent = expanded ? '更多筛选' : '收起筛选';
-  button.classList.toggle('expanded', !expanded);
-  recipePage.querySelector('#recipeExtraFilters').hidden = expanded;
 });
 
 recipePage.querySelector('#recipeColumnButton').addEventListener('click', () => {
