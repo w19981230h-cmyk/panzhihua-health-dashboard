@@ -2,7 +2,7 @@ const recipeStyleLink = [...document.querySelectorAll('link[rel="stylesheet"]')]
   .find(link => new URL(link.href, window.location.href).pathname.endsWith('/recipe.css'));
 if (recipeStyleLink) {
   const recipeStyleUrl = new URL(recipeStyleLink.href, window.location.href);
-  recipeStyleUrl.searchParams.set('v', '20260802-fields2');
+  recipeStyleUrl.searchParams.set('v', '20260802-actions');
   recipeStyleLink.href = recipeStyleUrl.href;
 }
 
@@ -78,6 +78,7 @@ function materializeRecipeRow(source, virtualIndex, poolSize) {
 }
 
 const RECIPE_VIRTUAL_TOTAL = 25690;
+let recipeVirtualTotalCount = RECIPE_VIRTUAL_TOTAL;
 const recipeState = { query: '', meal: '', category: '', enabled: '', page: 1, size: 10 };
 
 function escapeRecipeHtml(value = '') {
@@ -203,8 +204,8 @@ function filteredRecipes() {
 
 function recipeVirtualTotal(rows = filteredRecipes()) {
   if (!rows.length) return 0;
-  if (rows.length === recipeRows.length) return RECIPE_VIRTUAL_TOTAL;
-  return Math.max(rows.length, Math.round(RECIPE_VIRTUAL_TOTAL * rows.length / recipeRows.length));
+  if (rows.length === recipeRows.length) return recipeVirtualTotalCount;
+  return Math.max(rows.length, Math.round(recipeVirtualTotalCount * rows.length / recipeRows.length));
 }
 
 function recipePageCount() {
@@ -236,9 +237,10 @@ function renderRecipes() {
       <td>${row.calories ?? '--'}</td><td>${row.protein ?? '--'}</td><td>${row.fat ?? '--'}</td><td>${row.carbs ?? '--'}</td>
       <td><span class="recipe-status ${row.enabled ? 'active' : 'inactive'}"><i aria-hidden="true"></i>${row.enabled ? '启用' : '停用'}</span></td>
       <td>${escapeRecipeHtml(row.createdAt)}</td>
-      <td><div class="recipe-actions"><button class="recipe-more-actions" type="button" data-recipe-more aria-expanded="false">更多<i></i></button><div class="recipe-action-menu" hidden>
-        <button type="button" data-recipe-action="查看">查看</button><button type="button" data-recipe-action="编辑">编辑</button><button type="button" data-recipe-action="复制">复制</button><button type="button" data-recipe-action="${row.enabled ? '停用' : '启用'}">${row.enabled ? '停用' : '启用'}</button><button type="button" data-recipe-action="删除">删除</button>
-      </div></div></td>
+      <td><div class="recipe-actions recipe-direct-actions">
+        <button class="recipe-action-edit" type="button" data-recipe-action="编辑">编辑</button>
+        <button class="recipe-action-delete" type="button" data-recipe-action="删除">删除</button>
+      </div></td>
     </tr>`).join('');
   recipeEmpty.hidden = shown.length > 0;
   recipePage.querySelector('#recipeTotal').textContent = `共 ${virtualTotal.toLocaleString('zh-CN')} 条`;
@@ -280,7 +282,30 @@ function formOptions(values, selected = '') {
 function closeRecipeModal() {
   const backdrop = document.querySelector('#modalBackdrop');
   backdrop.classList.remove('show');
-  backdrop.querySelector('.modal').classList.remove('recipe-form-modal', 'recipe-detail-modal');
+  backdrop.querySelector('.modal').classList.remove('recipe-form-modal', 'recipe-detail-modal', 'recipe-delete-modal');
+}
+
+function openRecipeDeleteConfirm(row) {
+  const backdrop = document.querySelector('#modalBackdrop');
+  const modal = backdrop.querySelector('.modal');
+  modal.classList.add('recipe-delete-modal');
+  document.querySelector('#modalTitle').textContent = '删除食谱';
+  document.querySelector('#modalBody').innerHTML = `<div class="recipe-delete-confirm">
+    <div class="recipe-delete-icon" aria-hidden="true">!</div>
+    <div><h3>确认删除“${escapeRecipeHtml(row.name)}”吗？</h3><p>删除后该食谱将不再出现在列表中，此操作不可撤销。</p></div>
+  </div><div class="recipe-delete-actions"><button type="button" data-recipe-delete-cancel>取消</button><button class="danger" type="button" data-recipe-delete-confirm>确认删除</button></div>`;
+  backdrop.classList.add('show');
+  document.querySelector('[data-recipe-delete-cancel]').addEventListener('click', closeRecipeModal);
+  document.querySelector('[data-recipe-delete-confirm]').addEventListener('click', () => {
+    const index = recipeRows.indexOf(row);
+    if (index >= 0) {
+      recipeRows.splice(index, 1);
+      recipeVirtualTotalCount = Math.max(0, recipeVirtualTotalCount - 1);
+    }
+    closeRecipeModal();
+    renderRecipes();
+    showRecipeToast('食谱已删除');
+  });
 }
 
 function openRecipeForm(editRow = null) {
@@ -362,7 +387,11 @@ function openRecipeForm(editRow = null) {
       enabled: data.get('enabled') === 'true',
       createdAt: editRow?.createdAt || new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-')
     };
-    if (editRow) Object.assign(editRow, payload); else recipeRows.unshift(payload);
+    if (editRow) Object.assign(editRow, payload);
+    else {
+      recipeRows.unshift(payload);
+      recipeVirtualTotalCount += 1;
+    }
     recipeState.page = 1;
     closeRecipeModal();
     renderRecipes();
@@ -389,26 +418,17 @@ recipePage.querySelector('#recipeColumnButton').addEventListener('click', () => 
 recipePage.querySelector('#recipeCreate').addEventListener('click', () => openRecipeForm());
 
 recipeBody.addEventListener('click', event => {
-  const more = event.target.closest('[data-recipe-more]');
-  if (more) {
-    const menu = more.nextElementSibling;
-    recipeBody.querySelectorAll('.recipe-action-menu').forEach(item => { if (item !== menu) item.hidden = true; });
-    menu.hidden = !menu.hidden;
-    more.setAttribute('aria-expanded', String(!menu.hidden));
-    return;
-  }
   const actionButton = event.target.closest('[data-recipe-action]');
   if (!actionButton) return;
   const rowElement = actionButton.closest('tr');
   const row = recipeRows.find(item => item.id === rowElement.dataset.recipeSourceId);
   if (!row) return;
-  actionButton.closest('.recipe-action-menu').hidden = true;
   const action = actionButton.dataset.recipeAction;
   if (action === '查看') openRecipeDetail(row);
   if (action === '编辑') openRecipeForm(row);
-  if (action === '复制') { recipeRows.unshift({ ...row, id: `recipe-${Date.now()}`, name: `${row.name} 副本`, ingredients: row.ingredients.map(item => ({ ...item })), createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-') }); recipeState.page = 1; renderRecipes(); showRecipeToast('食谱复制成功'); }
+  if (action === '复制') { recipeRows.unshift({ ...row, id: `recipe-${Date.now()}`, name: `${row.name} 副本`, ingredients: row.ingredients.map(item => ({ ...item })), createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-') }); recipeVirtualTotalCount += 1; recipeState.page = 1; renderRecipes(); showRecipeToast('食谱复制成功'); }
   if (action === '启用' || action === '停用') { row.enabled = action === '启用'; renderRecipes(); showRecipeToast(`已${action}“${row.name}”`); }
-  if (action === '删除') { const index = recipeRows.indexOf(row); if (index >= 0) recipeRows.splice(index, 1); renderRecipes(); showRecipeToast('食谱已删除'); }
+  if (action === '删除') openRecipeDeleteConfirm(row);
 });
 
 document.addEventListener('click', event => {
@@ -416,8 +436,8 @@ document.addEventListener('click', event => {
   if (!event.composedPath().includes(recipePage)) closeRecipeSelects();
 });
 
-document.querySelector('#closeModal').addEventListener('click', () => document.querySelector('#modalBackdrop .modal').classList.remove('recipe-form-modal', 'recipe-detail-modal'));
-document.querySelector('#modalBackdrop').addEventListener('click', event => { if (event.target === event.currentTarget) event.currentTarget.querySelector('.modal').classList.remove('recipe-form-modal', 'recipe-detail-modal'); });
+document.querySelector('#closeModal').addEventListener('click', () => document.querySelector('#modalBackdrop .modal').classList.remove('recipe-form-modal', 'recipe-detail-modal', 'recipe-delete-modal'));
+document.querySelector('#modalBackdrop').addEventListener('click', event => { if (event.target === event.currentTarget) event.currentTarget.querySelector('.modal').classList.remove('recipe-form-modal', 'recipe-detail-modal', 'recipe-delete-modal'); });
 document.querySelectorAll('.subnav button').forEach(button => button.addEventListener('click', () => {
   const page = button.dataset.page;
   const opensRecipe = page === '食谱管理';

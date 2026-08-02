@@ -565,6 +565,66 @@
   width:min(680px, calc(100vw - 48px));
 }
 
+.modal.recipe-delete-modal{
+  width:min(460px, calc(100vw - 32px));
+}
+
+.recipe-delete-confirm{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  padding:8px 0 24px;
+}
+
+.recipe-delete-icon{
+  display:grid;
+  flex:0 0 42px;
+  width:42px;
+  height:42px;
+  place-items:center;
+  border-radius:50%;
+  color:#ff4d4f;
+  background:#fff1f0;
+  font-size:22px;
+  font-weight:700;
+}
+
+.recipe-delete-confirm h3{
+  margin:2px 0 8px;
+  color:#15233f;
+  font-size:16px;
+}
+
+.recipe-delete-confirm p{
+  margin:0;
+  color:#7b879a;
+  line-height:1.7;
+}
+
+.recipe-delete-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  padding-top:16px;
+  border-top:1px solid #edf0f5;
+}
+
+.recipe-delete-actions button{
+  min-width:88px;
+  height:38px;
+}
+
+.recipe-delete-actions .danger{
+  border-color:#ff4d4f;
+  color:#fff;
+  background:#ff4d4f;
+}
+
+.recipe-delete-actions .danger:hover{
+  border-color:#ff7875;
+  background:#ff7875;
+}
+
 .recipe-detail-hero{
   display:flex;
   align-items:center;
@@ -1657,6 +1717,53 @@ th,
   position:sticky;
   bottom:0;
   padding:14px 24px;
+}
+
+/* 操作列直接展示，避免下拉浮层遮挡相邻行 */
+.recipe-page .recipe-table{
+  min-width:1620px;
+}
+
+.recipe-page .recipe-table th:nth-child(1),.recipe-page .recipe-table td:nth-child(1){width:92px}
+.recipe-page .recipe-table th:nth-child(2),.recipe-page .recipe-table td:nth-child(2){width:180px}
+.recipe-page .recipe-table th:nth-child(3),.recipe-page .recipe-table td:nth-child(3){width:90px}
+.recipe-page .recipe-table th:nth-child(4),.recipe-page .recipe-table td:nth-child(4){width:100px}
+.recipe-page .recipe-table th:nth-child(5),.recipe-page .recipe-table td:nth-child(5){width:280px}
+.recipe-page .recipe-table th:nth-child(6),.recipe-page .recipe-table td:nth-child(6),
+.recipe-page .recipe-table th:nth-child(7),.recipe-page .recipe-table td:nth-child(7),
+.recipe-page .recipe-table th:nth-child(8),.recipe-page .recipe-table td:nth-child(8),
+.recipe-page .recipe-table th:nth-child(9),.recipe-page .recipe-table td:nth-child(9){width:100px}
+.recipe-page .recipe-table th:nth-child(10),.recipe-page .recipe-table td:nth-child(10){width:90px}
+.recipe-page .recipe-table th:nth-child(11),.recipe-page .recipe-table td:nth-child(11){width:180px}
+.recipe-page .recipe-table th:nth-child(12),.recipe-page .recipe-table td:nth-child(12){width:130px;text-align:center;overflow:visible}
+
+.recipe-actions.recipe-direct-actions{
+  position:static;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  overflow:visible;
+  white-space:nowrap;
+}
+
+.recipe-actions.recipe-direct-actions button{
+  height:30px;
+  padding:0 2px;
+  border:0;
+  background:transparent;
+  color:#1747f5;
+  font-size:13px;
+  line-height:30px;
+  cursor:pointer;
+}
+
+.recipe-actions.recipe-direct-actions .recipe-action-delete{
+  color:#ef4d5a;
+}
+
+.recipe-actions.recipe-direct-actions button:hover{
+  text-decoration:underline;
 }
 
 .recipe-create-button:hover{
