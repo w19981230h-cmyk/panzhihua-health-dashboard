@@ -214,7 +214,8 @@ function recipePageCount() {
 
 function recipeImage(row) {
   if (row.image) return `<img class="recipe-image" src="${escapeRecipeHtml(row.image)}" alt="${escapeRecipeHtml(row.name)}">`;
-  return `<span class="recipe-thumb recipe-thumb-${row.thumb || 1}" role="img" aria-label="${escapeRecipeHtml(row.name)}"></span>`;
+  if (!row.imageRemoved && row.thumb) return `<span class="recipe-thumb recipe-thumb-${row.thumb}" role="img" aria-label="${escapeRecipeHtml(row.name)}"></span>`;
+  return '<span class="recipe-image-empty">暂无图片</span>';
 }
 
 function renderRecipes() {
@@ -279,6 +280,12 @@ function formOptions(values, selected = '') {
   return `<option value="">请选择</option>${values.map(value => `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`).join('')}`;
 }
 
+function recipeFormImagePreview(row) {
+  if (row?.image) return `<img src="${escapeRecipeHtml(row.image)}" alt="封面预览">`;
+  if (row && !row.imageRemoved && row.thumb) return `<span class="recipe-thumb recipe-thumb-${row.thumb}" role="img" aria-label="${escapeRecipeHtml(row.name)}封面"></span>`;
+  return '<b>＋</b><em>点击上传图片</em><small>支持 JPG、PNG、WEBP</small>';
+}
+
 function closeRecipeModal() {
   const backdrop = document.querySelector('#modalBackdrop');
   backdrop.classList.remove('show');
@@ -320,7 +327,7 @@ function openRecipeForm(editRow = null) {
       <label class="recipe-field"><span><b>*</b>食谱名称</span><input name="name" required maxlength="30" value="${escapeRecipeHtml(editRow?.name || '')}" placeholder="请输入食谱名称"><small data-error-for="name"></small></label>
       <label class="recipe-field"><span>餐次</span><select name="meal">${formOptions(['早餐', '午餐', '晚餐', '加餐'], editRow?.meal)}</select></label>
       <label class="recipe-field"><span>食谱分类</span><select name="category">${formOptions(['主食', '菜品', '汤羹', '饮品'], editRow?.category)}</select></label>
-      <div class="recipe-field recipe-image-field"><span>食谱图片</span><label class="recipe-upload-box"><input name="image" type="file" accept="image/png,image/jpeg,image/webp"><span class="recipe-upload-preview" data-image-preview>${editRow?.image ? `<img src="${escapeRecipeHtml(editRow.image)}" alt="预览">` : '<b>＋</b><em>点击上传图片</em><small>支持 JPG、PNG、WEBP</small>'}</span></label></div>
+      <div class="recipe-field recipe-image-field"><span>食谱图片</span><div class="recipe-upload-holder"><label class="recipe-upload-box"><input name="image" type="file" accept="image/png,image/jpeg,image/webp"><span class="recipe-upload-preview" data-image-preview>${recipeFormImagePreview(editRow)}</span></label><button class="recipe-image-remove" type="button" data-remove-recipe-image aria-label="删除封面图片" title="删除封面图片" ${editRow && (editRow.image || (!editRow.imageRemoved && editRow.thumb)) ? '' : 'hidden'}>×</button></div><small class="recipe-image-limit">最多上传 1 张图片，重新选择将替换当前封面</small></div>
     </div></section>
     <section class="recipe-form-section"><div class="recipe-section-title"><h3><b>*</b>食材及用量</h3><button type="button" data-add-ingredient>＋ 添加食材</button></div><div class="recipe-ingredient-head"><span>食材名称</span><span>用量</span><span></span></div><div class="recipe-ingredient-list" data-ingredient-list>${currentIngredients.map(ingredientRow).join('')}</div><p class="recipe-section-error" data-ingredient-error></p></section>
     <section class="recipe-form-section"><h3>营养信息</h3><div class="recipe-nutrition-grid">
@@ -334,6 +341,7 @@ function openRecipeForm(editRow = null) {
   </form>`;
   backdrop.classList.add('show');
   let uploadedImage = editRow?.image || '';
+  let coverRemoved = Boolean(editRow?.imageRemoved);
   const form = body.querySelector('#recipeCreateForm');
   form.querySelector('[name="name"]').focus();
   form.querySelector('[data-add-ingredient]').addEventListener('click', () => {
@@ -354,8 +362,15 @@ function openRecipeForm(editRow = null) {
     if (!file) return;
     if (file.size > 3 * 1024 * 1024) { showRecipeToast('图片大小不能超过 3MB'); event.target.value = ''; return; }
     const reader = new FileReader();
-    reader.addEventListener('load', () => { uploadedImage = String(reader.result); form.querySelector('[data-image-preview]').innerHTML = `<img src="${uploadedImage}" alt="图片预览">`; });
+    reader.addEventListener('load', () => { uploadedImage = String(reader.result); coverRemoved = false; form.querySelector('[data-image-preview]').innerHTML = `<img src="${uploadedImage}" alt="图片预览">`; form.querySelector('[data-remove-recipe-image]').hidden = false; });
     reader.readAsDataURL(file);
+  });
+  form.querySelector('[data-remove-recipe-image]').addEventListener('click', () => {
+    uploadedImage = '';
+    coverRemoved = true;
+    form.querySelector('[name="image"]').value = '';
+    form.querySelector('[data-image-preview]').innerHTML = '<b>＋</b><em>点击上传图片</em><small>支持 JPG、PNG、WEBP</small>';
+    form.querySelector('[data-remove-recipe-image]').hidden = true;
   });
   form.querySelector('[data-recipe-cancel]').addEventListener('click', closeRecipeModal);
   form.addEventListener('submit', event => {
@@ -379,6 +394,7 @@ function openRecipeForm(editRow = null) {
       id: editRow?.id || `recipe-${Date.now()}`,
       name,
       image: uploadedImage,
+      imageRemoved: coverRemoved,
       thumb: editRow?.thumb || 1,
       meal: String(data.get('meal') || ''),
       category: String(data.get('category') || ''),

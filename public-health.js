@@ -128,7 +128,7 @@ const publicHealthTrend = Array.from({length:15},(_,index)=>{
 });
 
 const phTaskState = {page: 1, size: 20, team: phTaskTeams[0], query: '', category: '', type: '', startDate: '', endDate: '', status: ''};
-const phStatState = {page: 1, size: 20, region: '', group: '', organization: '', team: '', person: ''};
+const phStatState = {page: 1, size: 20, startDate: '2026-07-01', endDate: '2026-08-02', region: '', group: '', organization: '', team: '', person: ''};
 
 function phOptions(values, placeholder) {
   return `<option value="">${placeholder}</option>${values.map(value => `<option value="${value}">${value}</option>`).join('')}`;
@@ -137,7 +137,7 @@ function phOptions(values, placeholder) {
 function phTaskSelect(key, label, values) {
   return `<div class="task-ant-select" data-task-filter-key="${key}" data-placeholder="${label}" data-value="">
     <button class="task-ant-select-selector" type="button" role="combobox" aria-label="${label}" aria-haspopup="listbox" aria-expanded="false">
-      <span class="task-ant-select-value placeholder">${label}</span><span class="task-ant-select-arrow" aria-hidden="true"></span>
+      <span class="task-ant-select-value placeholder">${label}</span><span class="task-ant-clear" data-task-clear-filter="${key}" role="button" tabindex="0" aria-label="清除${label}" hidden>×</span><span class="task-ant-select-arrow" aria-hidden="true"></span>
     </button>
     <div class="task-ant-select-dropdown" role="listbox" hidden>
       <button class="task-ant-select-option selected" type="button" role="option" data-value="" aria-selected="true"><span>${label}</span><i aria-hidden="true">✓</i></button>
@@ -150,6 +150,7 @@ function phTaskDatePicker(key, label) {
   return `<div class="task-ant-date" data-task-date-key="${key}" data-label="${label}">
     <button class="task-ant-date-selector" type="button" aria-label="${label}" aria-haspopup="dialog" aria-expanded="false">
       <span class="task-ant-date-value placeholder">${label}</span>
+      <span class="task-ant-clear" data-task-clear-filter="${key}" role="button" tabindex="0" aria-label="清除${label}" hidden>×</span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4m8-4v4M3 10h18"></path></svg>
     </button>
     <input id="${key === 'startDate' ? 'phTaskStartDate' : 'phTaskEndDate'}" type="hidden" value="">
@@ -244,11 +245,12 @@ function buildPublicHealthStatsPage() {
   page.hidden = true;
   page.innerHTML = `
     <section class="ph-stats-filter dash-filter-row">
-      <div class="dash-date ant-picker ant-picker-range ph-stat-date">
-        <button class="dash-range-trigger" id="phStatDateTrigger" type="button" aria-label="统计日期范围">
-          <span class="dash-range-value">2026/07/01</span><span class="ant-picker-range-separator">→</span><span class="dash-range-value">2026/08/02</span>
+      <div class="dash-date ant-picker ant-picker-range ph-stat-date" id="phStatDatePicker">
+        <button class="dash-range-trigger" id="phStatDateTrigger" type="button" aria-label="统计日期范围" aria-haspopup="dialog" aria-expanded="false">
+          <span class="dash-range-value" id="phStatStartText">2026/07/01</span><span class="ant-picker-range-separator">→</span><span class="dash-range-value" id="phStatEndText">2026/08/02</span>
           <svg class="dash-calendar-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/></svg>
         </button>
+        <div class="dash-range-dropdown" id="phStatDateDropdown" role="dialog" aria-label="选择统计日期范围" hidden><div class="dash-calendar-panels" id="phStatCalendarPanels"></div></div>
       </div>
       ${phStatSelect('region','全市',phRegions)}
       ${phStatSelect('group','全部医疗集团',phMedicalGroups)}
@@ -289,7 +291,7 @@ function filteredPublicHealthTasks() {
   const query = phTaskState.query.trim().toLowerCase();
   return publicHealthTasks.filter(task =>
     (!phTaskState.team || task.team === phTaskState.team) &&
-    (!query || `${task.taskName}${task.patient}`.toLowerCase().includes(query)) &&
+    (!query || `${task.id}${task.taskName}${task.patient}${task.cardNumber}${task.phone}`.toLowerCase().includes(query)) &&
     (!phTaskState.category || task.category === phTaskState.category) &&
     (!phTaskState.type || task.taskType === phTaskState.type) &&
     (!phTaskState.status || task.status === phTaskState.status) &&
@@ -367,6 +369,8 @@ function closePublicHealthDrawer() {
 
 function filteredPublicHealthStats() {
   return publicHealthStats.filter(row =>
+    (!phStatState.startDate || row.date >= phStatState.startDate) &&
+    (!phStatState.endDate || row.date <= phStatState.endDate) &&
     (!phStatState.region || row.region === phStatState.region) &&
     (!phStatState.group || row.medicalGroup === phStatState.group) &&
     (!phStatState.organization || row.organization === phStatState.organization) &&
@@ -412,13 +416,14 @@ function initPublicHealthCharts() {
 function renderPublicHealthCharts() {
   if (!phCharts.category) return;
   const aggregate = phStatsAggregate(filteredPublicHealthStats());
-  const cityAggregate = phStatsAggregate(publicHealthStats);
+  const cityAggregate = phStatsAggregate(publicHealthStats.filter(row=>(!phStatState.startDate||row.date>=phStatState.startDate)&&(!phStatState.endDate||row.date<=phStatState.endDate)));
   const colors = ['#35b99d','#f2aa3f','#ef6b73'];
   phCharts.category.setOption({color:colors,tooltip:{trigger:'item'},legend:{orient:'vertical',right:'8%',top:'middle',textStyle:{color:'#51617d'}},series:[{type:'pie',radius:['52%','72%'],center:['34%','52%'],label:{show:false},data:[{name:'公卫已纳，医院待纳',value:aggregate.publicOnly},{name:'医院已纳，公卫待纳',value:aggregate.hospitalOnly},{name:'双方未纳管',value:aggregate.unmanaged}]}]},true);
   const trendScale={publicOnly:cityAggregate.publicOnly?aggregate.publicOnly/cityAggregate.publicOnly:0,hospitalOnly:cityAggregate.hospitalOnly?aggregate.hospitalOnly/cityAggregate.hospitalOnly:0,unmanaged:cityAggregate.unmanaged?aggregate.unmanaged/cityAggregate.unmanaged:0};
-  const days=publicHealthTrend.map(day=>day.date);
+  const visibleTrend=publicHealthTrend.filter(day=>(!phStatState.startDate||day.date>=phStatState.startDate)&&(!phStatState.endDate||day.date<=phStatState.endDate));
+  const days=visibleTrend.map(day=>day.date);
   const trendKeys=['publicOnly','hospitalOnly','unmanaged'];
-  phCharts.trend.setOption({color:colors,tooltip:{trigger:'axis'},legend:{top:4,textStyle:{color:'#51617d'}},grid:{left:48,right:24,top:46,bottom:34},xAxis:{type:'category',data:days.map(day=>day.slice(5)),axisLine:{lineStyle:{color:'#dfe5ef'}},axisLabel:{color:'#73809a'}},yAxis:{type:'value',splitLine:{lineStyle:{color:'#eef2f7'}},axisLabel:{color:'#73809a'}},series:['公卫已纳，医院待纳','医院已纳，公卫待纳','双方未纳管'].map((name,index)=>({name,type:'line',smooth:true,symbolSize:6,data:publicHealthTrend.map(day=>Math.round(day[trendKeys[index]]*trendScale[trendKeys[index]]))}))},true);
+  phCharts.trend.setOption({color:colors,tooltip:{trigger:'axis'},legend:{top:4,textStyle:{color:'#51617d'}},grid:{left:48,right:24,top:46,bottom:34},xAxis:{type:'category',data:days.map(day=>day.slice(5)),axisLine:{lineStyle:{color:'#dfe5ef'}},axisLabel:{color:'#73809a'}},yAxis:{type:'value',splitLine:{lineStyle:{color:'#eef2f7'}},axisLabel:{color:'#73809a'}},series:['公卫已纳，医院待纳','医院已纳，公卫待纳','双方未纳管'].map((name,index)=>({name,type:'line',smooth:true,symbolSize:6,data:visibleTrend.map(day=>Math.round(day[trendKeys[index]]*trendScale[trendKeys[index]]))}))},true);
   phCharts.funnel.setOption({color:['#2f7df4','#679eed','#9fc0e8','#d3e2f3'],tooltip:{trigger:'item'},series:[{type:'funnel',left:'12%',top:14,bottom:10,width:'76%',minSize:'38%',maxSize:'100%',sort:'descending',gap:2,label:{show:true,position:'inside',color:'#24436f',formatter:'{b}  {c}'},data:[{name:'自动识别',value:aggregate.autoIdentified},{name:'已生成任务',value:aggregate.generated},{name:'已完成',value:aggregate.completed},{name:'纳管成功',value:aggregate.managed}]}]},true);
 }
 
@@ -510,6 +515,7 @@ function resetPublicHealthTaskQueryControls() {
     const value=select.querySelector('.task-ant-select-value');
     value.textContent=label;
     value.classList.add('placeholder');
+    select.querySelector('.task-ant-clear').hidden=true;
     select.querySelectorAll('.task-ant-select-option').forEach(option=>{
       const selected=option.dataset.value==='';
       option.classList.toggle('selected',selected);
@@ -521,6 +527,7 @@ function resetPublicHealthTaskQueryControls() {
     const value=picker.querySelector('.task-ant-date-value');
     value.textContent=picker.dataset.label;
     value.classList.add('placeholder');
+    picker.querySelector('.task-ant-clear').hidden=true;
   });
   closePublicHealthTaskQueryPopups();
 }
@@ -528,6 +535,35 @@ function resetPublicHealthTaskQueryControls() {
 const taskFilterBindings = [['#phTaskSearch','query','input']];
 taskFilterBindings.forEach(([selector,key,eventName]) => phTaskPage.querySelector(selector).addEventListener(eventName,event => { phTaskState[key]=event.target.value; phTaskState.page=1; renderPublicHealthTasks(); }));
 phTaskPage.querySelector('.ph-task-query').addEventListener('click',event=>{
+  const clear=event.target.closest('[data-task-clear-filter]');
+  if(clear){
+    event.preventDefault();
+    event.stopPropagation();
+    const key=clear.dataset.taskClearFilter;
+    phTaskState[key]='';
+    phTaskState.page=1;
+    const control=clear.closest('.task-ant-select,.task-ant-date');
+    if(control.classList.contains('task-ant-select')){
+      control.dataset.value='';
+      const valueNode=control.querySelector('.task-ant-select-value');
+      valueNode.textContent=control.dataset.placeholder;
+      valueNode.classList.add('placeholder');
+      control.querySelectorAll('.task-ant-select-option').forEach(item=>{
+        const selected=item.dataset.value==='';
+        item.classList.toggle('selected',selected);
+        item.setAttribute('aria-selected',String(selected));
+      });
+    }else{
+      control.querySelector('input').value='';
+      const valueNode=control.querySelector('.task-ant-date-value');
+      valueNode.textContent=control.dataset.label;
+      valueNode.classList.add('placeholder');
+    }
+    clear.hidden=true;
+    closePublicHealthTaskQueryPopups();
+    renderPublicHealthTasks();
+    return;
+  }
   const option=event.target.closest('.task-ant-select-option');
   if(option){
     const select=option.closest('.task-ant-select');
@@ -539,6 +575,7 @@ phTaskPage.querySelector('.ph-task-query').addEventListener('click',event=>{
     const valueNode=select.querySelector('.task-ant-select-value');
     valueNode.textContent=value||select.dataset.placeholder;
     valueNode.classList.toggle('placeholder',!value);
+    select.querySelector('.task-ant-clear').hidden=!value;
     select.querySelectorAll('.task-ant-select-option').forEach(item=>{
       const selected=item===option;
       item.classList.toggle('selected',selected);
@@ -576,6 +613,7 @@ phTaskPage.querySelector('.ph-task-query').addEventListener('click',event=>{
     const valueNode=picker.querySelector('.task-ant-date-value');
     valueNode.textContent=phTaskState[key].replaceAll('-','/');
     valueNode.classList.remove('placeholder');
+    picker.querySelector('.task-ant-clear').hidden=false;
     closePublicHealthTaskQueryPopups();
     renderPublicHealthTasks();
     return;
@@ -603,6 +641,7 @@ phTaskPage.querySelector('#phTaskReset').addEventListener('click', () => {
   renderPublicHealthTasks();
 });
 phTaskPage.querySelector('#phTaskQuery').addEventListener('click', () => { phTaskState.page=1; renderPublicHealthTasks(); });
+phTaskPage.querySelector('#phTaskSearch').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();phTaskState.page=1;renderPublicHealthTasks();}});
 phTaskPage.querySelector('#phTaskTeams').addEventListener('click', event => { const button=event.target.closest('[data-task-team]'); if(!button)return; phTaskState.team=button.dataset.taskTeam; phTaskState.page=1; renderPublicHealthTasks(); });
 phTaskPage.querySelector('#phTaskStatusTabs').addEventListener('click', event => { const button=event.target.closest('[data-task-status]'); if(!button)return; phTaskState.status=button.dataset.taskStatus; phTaskState.page=1; renderPublicHealthTasks(); });
 phTaskPage.querySelector('#phTaskPages').addEventListener('click', event => { const button=event.target.closest('[data-task-page]'); if(!button)return; phTaskState.page=Number(button.dataset.taskPage); renderPublicHealthTasks(); });
@@ -624,6 +663,67 @@ phTaskPage.querySelector('#phDrawerClose').addEventListener('click',closePublicH
 phTaskPage.querySelector('#phDrawerCancel').addEventListener('click',closePublicHealthDrawer);
 phTaskPage.querySelector('#phTaskDrawer').addEventListener('click',event=>{if(event.target===event.currentTarget)closePublicHealthDrawer();});
 phTaskPage.querySelector('#phDrawerSave').addEventListener('click',()=>{const result=phTaskPage.querySelector('#phTaskResult').value;if(!result){phShowToast('请选择处理结论');return;}const task=publicHealthTasks.find(item=>item.id===currentTaskId);task.result=result;task.status='已完成';task.endAt=phDate(0,true);task.owner=task.owner==='--'?'张海明':task.owner;closePublicHealthDrawer();renderPublicHealthTasks();phShowToast('处理结果已保存');});
+
+function phParseStatDate(value){
+  const [year,month,day]=value.split('-').map(Number);
+  return new Date(year,month-1,day);
+}
+function phFormatStatDate(date,separator='-'){
+  return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join(separator);
+}
+function phAddStatMonths(date,amount){return new Date(date.getFullYear(),date.getMonth()+amount,1);}
+function phBuildStatCalendar(monthDate,panelIndex,start,end){
+  const year=monthDate.getFullYear();
+  const month=monthDate.getMonth();
+  const firstDay=new Date(year,month,1);
+  const gridStart=new Date(year,month,1-(firstDay.getDay()+6)%7);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const cells=Array.from({length:42},(_,index)=>{
+    const date=new Date(gridStart); date.setDate(gridStart.getDate()+index); date.setHours(0,0,0,0);
+    const value=phFormatStatDate(date);
+    const isStart=start&&date.getTime()===start.getTime();
+    const isEnd=end&&date.getTime()===end.getTime();
+    const classes=['dash-calendar-cell',date.getMonth()!==month?'outside':'',date.getTime()===today.getTime()?'today':'',isStart?'range-start':'',isEnd?'range-end':'',start&&end&&date>start&&date<end?'in-range':''].filter(Boolean).join(' ');
+    return `<button class="${classes}" type="button" role="gridcell" data-stat-date="${value}" aria-label="${year}年${date.getMonth()+1}月${date.getDate()}日" aria-selected="${Boolean(isStart||isEnd)}"><span>${date.getDate()}</span></button>`;
+  }).join('');
+  const previous=panelIndex===0?'<div class="dash-calendar-nav start"><button type="button" data-stat-calendar-move="-12" aria-label="上一年">«</button><button type="button" data-stat-calendar-move="-1" aria-label="上个月">‹</button></div>':'';
+  const next=panelIndex===1?'<div class="dash-calendar-nav end"><button type="button" data-stat-calendar-move="1" aria-label="下个月">›</button><button type="button" data-stat-calendar-move="12" aria-label="下一年">»</button></div>':'';
+  return `<section class="dash-calendar-panel"><header class="dash-calendar-header">${previous}<strong>${year}年 ${month+1}月</strong>${next}</header><div class="dash-calendar-week" aria-hidden="true">${['一','二','三','四','五','六','日'].map(day=>`<span>${day}</span>`).join('')}</div><div class="dash-calendar-grid" role="grid">${cells}</div></section>`;
+}
+function initPublicHealthStatRangePicker(){
+  const picker=phStatsPage.querySelector('#phStatDatePicker');
+  const trigger=phStatsPage.querySelector('#phStatDateTrigger');
+  const dropdown=phStatsPage.querySelector('#phStatDateDropdown');
+  const panels=phStatsPage.querySelector('#phStatCalendarPanels');
+  const startText=phStatsPage.querySelector('#phStatStartText');
+  const endText=phStatsPage.querySelector('#phStatEndText');
+  let start=phParseStatDate(phStatState.startDate);
+  let end=phParseStatDate(phStatState.endDate);
+  let panelMonth=new Date(start.getFullYear(),start.getMonth(),1);
+  let choosingEnd=false;
+  const renderPanels=()=>{panels.innerHTML=phBuildStatCalendar(panelMonth,0,start,end)+phBuildStatCalendar(phAddStatMonths(panelMonth,1),1,start,end);};
+  const setOpen=open=>{picker.classList.toggle('open',open);dropdown.hidden=!open;trigger.setAttribute('aria-expanded',String(open));if(open)renderPanels();};
+  trigger.addEventListener('click',event=>{event.stopPropagation();closePublicHealthStatSelects();panelMonth=new Date(start.getFullYear(),start.getMonth(),1);choosingEnd=false;setOpen(dropdown.hidden);});
+  dropdown.addEventListener('click',event=>{
+    event.stopPropagation();
+    const move=event.target.closest('[data-stat-calendar-move]');
+    if(move){panelMonth=phAddStatMonths(panelMonth,Number(move.dataset.statCalendarMove));renderPanels();return;}
+    const cell=event.target.closest('[data-stat-date]');
+    if(!cell)return;
+    const selected=phParseStatDate(cell.dataset.statDate);
+    if(!choosingEnd){start=selected;end=null;choosingEnd=true;startText.textContent=phFormatStatDate(start,'/');endText.textContent='结束日期';renderPanels();return;}
+    if(selected<start){end=start;start=selected;}else end=selected;
+    phStatState.startDate=phFormatStatDate(start);
+    phStatState.endDate=phFormatStatDate(end);
+    phStatState.page=1;
+    startText.textContent=phFormatStatDate(start,'/');
+    endText.textContent=phFormatStatDate(end,'/');
+    choosingEnd=false;
+    setOpen(false);
+    renderPublicHealthStats();
+  });
+  document.addEventListener('click',event=>{if(!event.composedPath().includes(picker))setOpen(false);});
+}
 
 const phStatSelectOrder=['region','group','organization','team','person'];
 const phStatSelectLabels={region:'全市',group:'全部医疗集团',organization:'全部机构',team:'全部团队',person:'全部'};
@@ -677,7 +777,7 @@ phStatsPage.querySelectorAll('.ph-stat-select').forEach(select=>{
     renderPublicHealthStats();
   });
 });
-phStatsPage.querySelector('#phStatDateTrigger').addEventListener('click',()=>phShowToast('统计周期与单病种看板保持一致'));
+initPublicHealthStatRangePicker();
 phStatsPage.querySelector('#phStatRefresh').addEventListener('click',event=>{
   const now=new Date();
   const pad=value=>String(value).padStart(2,'0');
