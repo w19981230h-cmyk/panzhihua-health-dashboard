@@ -186,7 +186,7 @@ scaleRows[0].children=[{
   children:undefined
 }];
 
-const scaleState = {query:'',disease:'',page:1,size:20,expanded:new Set([0])};
+const scaleState = {query:'',page:1,size:20,expanded:new Set([0])};
 
 function buildScalePage(){
   const page=document.createElement('section');
@@ -199,12 +199,6 @@ function buildScalePage(){
         <label class="scale-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 4.5 4.5"></path></svg>
           <input id="scaleSearch" type="search" placeholder="搜索名称" autocomplete="off">
-        </label>
-        <label class="scale-disease-filter">
-          <select id="scaleDiseaseFilter" aria-label="按病种筛选">
-            <option value="">全部病种（${scaleRows.length}）</option>
-            ${medicalScaleCatalog.map(([disease,names])=>`<option value="${disease}">${disease}（${names.length}）</option>`).join('')}
-          </select><i aria-hidden="true"></i>
         </label>
         <button class="scale-column-button" type="button" aria-label="管理显示列">
           <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-columns"></use></svg>
@@ -281,7 +275,6 @@ function filteredScales(){
   const query=scaleState.query.trim().toLowerCase();
   const diseaseMatch=medicalScaleCatalog.find(([disease])=>disease.toLowerCase()===query);
   return scaleRows.map((row,index)=>({row,index})).filter(({row})=>{
-    if(scaleState.disease&&row.disease!==scaleState.disease)return false;
     if(!query)return true;
     if(diseaseMatch)return row.disease.toLowerCase()===query;
     return row.name.toLowerCase().includes(query);
@@ -342,12 +335,6 @@ function setScaleMode(enabled){
 
 scalePage.querySelector('#scaleSearch').addEventListener('input',event=>{
   scaleState.query=event.target.value;
-  scaleState.page=1;
-  renderScales();
-});
-
-scalePage.querySelector('#scaleDiseaseFilter').addEventListener('change',event=>{
-  scaleState.disease=event.target.value;
   scaleState.page=1;
   renderScales();
 });
