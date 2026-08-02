@@ -1,3 +1,11 @@
+const recipeStyleLink = [...document.querySelectorAll('link[rel="stylesheet"]')]
+  .find(link => new URL(link.href, window.location.href).pathname.endsWith('/recipe.css'));
+if (recipeStyleLink) {
+  const recipeStyleUrl = new URL(recipeStyleLink.href, window.location.href);
+  recipeStyleUrl.searchParams.set('v', '20260802-fields');
+  recipeStyleLink.href = recipeStyleUrl.href;
+}
+
 const recipeBaseRows = [
   ['芹菜炒香干', '午餐', '菜品', ['高血压', '糖尿病'], 210, 16.8, 8.6, 19.5, true],
   ['燕麦鸡蛋粥', '早餐', '主食', ['糖尿病'], 280, 13.2, 7.1, 42.6, true],
