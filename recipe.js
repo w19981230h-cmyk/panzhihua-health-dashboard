@@ -2,7 +2,7 @@ const recipeStyleLink = [...document.querySelectorAll('link[rel="stylesheet"]')]
   .find(link => new URL(link.href, window.location.href).pathname.endsWith('/recipe.css'));
 if (recipeStyleLink) {
   const recipeStyleUrl = new URL(recipeStyleLink.href, window.location.href);
-  recipeStyleUrl.searchParams.set('v', '20260802-fields');
+  recipeStyleUrl.searchParams.set('v', '20260802-fields2');
   recipeStyleLink.href = recipeStyleUrl.href;
 }
 

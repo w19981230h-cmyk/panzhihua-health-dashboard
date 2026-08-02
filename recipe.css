@@ -1580,6 +1580,48 @@ th,
   box-shadow:0 2px 4px rgba(23,59,255,.2);
 }
 
+/* 最终布局约束：避免历史规则覆盖新版食谱表单与列表 */
+.recipe-page .recipe-table{
+  min-width:1780px;
+  table-layout:fixed;
+}
+
+.recipe-page .recipe-table th:nth-child(1),.recipe-page .recipe-table td:nth-child(1){width:92px;text-align:center}
+.recipe-page .recipe-table th:nth-child(2),.recipe-page .recipe-table td:nth-child(2){width:150px;text-align:left}
+.recipe-page .recipe-table th:nth-child(3),.recipe-page .recipe-table td:nth-child(3){width:86px;text-align:left}
+.recipe-page .recipe-table th:nth-child(4),.recipe-page .recipe-table td:nth-child(4){width:96px;text-align:left}
+.recipe-page .recipe-table th:nth-child(5),.recipe-page .recipe-table td:nth-child(5){width:235px;text-align:left}
+.recipe-page .recipe-table th:nth-child(6),.recipe-page .recipe-table td:nth-child(6){width:100px;text-align:left}
+.recipe-page .recipe-table th:nth-child(7),.recipe-page .recipe-table td:nth-child(7){width:105px;text-align:left}
+.recipe-page .recipe-table th:nth-child(8),.recipe-page .recipe-table td:nth-child(8){width:86px;text-align:left}
+.recipe-page .recipe-table th:nth-child(9),.recipe-page .recipe-table td:nth-child(9){width:86px;text-align:left}
+.recipe-page .recipe-table th:nth-child(10),.recipe-page .recipe-table td:nth-child(10){width:210px;text-align:left}
+.recipe-page .recipe-table th:nth-child(11),.recipe-page .recipe-table td:nth-child(11){width:85px;text-align:left}
+.recipe-page .recipe-table th:nth-child(12),.recipe-page .recipe-table td:nth-child(12){width:170px;text-align:left}
+.recipe-page .recipe-table th:nth-child(13),.recipe-page .recipe-table td:nth-child(13){width:100px;text-align:center;overflow:visible}
+
+#modalBackdrop .recipe-create-form{
+  display:block;
+  grid-template-columns:none;
+  gap:0;
+}
+
+#modalBackdrop .recipe-create-form>section,
+#modalBackdrop .recipe-create-form>.recipe-form-actions{
+  grid-column:auto;
+}
+
+#modalBackdrop .recipe-create-form .recipe-ingredient-row input{
+  height:40px;
+  padding:0 12px;
+}
+
+#modalBackdrop .recipe-create-form>.recipe-form-actions{
+  position:sticky;
+  bottom:0;
+  padding:14px 24px;
+}
+
 .recipe-create-button:hover{
   background:#102fe8;
 }
