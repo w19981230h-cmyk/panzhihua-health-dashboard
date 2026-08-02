@@ -166,18 +166,41 @@ const scaleCreators={
 };
 const versionLabels=['V1.0','V1.1','V2.0','V2.1'];
 
-const scaleRows=medicalScaleCatalog.flatMap(([disease,names],diseaseIndex)=>names.map((scaleName,localIndex)=>({
+const baseScaleRows=medicalScaleCatalog.flatMap(([disease,names],diseaseIndex)=>names.map((scaleName,localIndex)=>({
   disease,
   name:`【${disease}】${scaleName}`,
   plans:1+(localIndex*2+diseaseIndex)%7,
   tasks:18+((localIndex+2)*(diseaseIndex+4)*11)%286,
   version:versionLabels[(localIndex+diseaseIndex)%versionLabels.length],
   versions:1+(localIndex+diseaseIndex)%4,
-  creator:scaleCreators[disease][localIndex%scaleCreators[disease].length],
+  creator:'张海明',
   createdAt:`2026/${String(7-Math.floor(diseaseIndex/3)).padStart(2,'0')}/${String(26-(localIndex%18)).padStart(2,'0')} ${String(8+(localIndex%9)).padStart(2,'0')}:${String(10+(localIndex*7)%50).padStart(2,'0')}:00`,
   published:localIndex<names.length-1,
   enabled:localIndex<names.length-1&&localIndex%6!==5
 })));
+
+const scaleManagementTemplates=[
+  '初诊基线评估记录表','门诊复诊评估记录表','居家监测周报表','重点指标月度复评表','用药方案核对记录表',
+  '用药不良反应筛查表','治疗依从性随访表','生活方式干预评估表','饮食管理执行评估表','运动处方执行评估表',
+  '睡眠与心理状态评估表','并发症风险筛查表','健康教育效果评估表','年度综合管理评估表','高风险患者转诊评估表'
+];
+
+const supplementalScaleRows=medicalScaleCatalog.flatMap(([disease],diseaseIndex)=>
+  scaleManagementTemplates.slice(0,diseaseIndex<4?15:14).map((scaleName,localIndex)=>({
+    disease,
+    name:`【${disease}】${scaleName}`,
+    plans:(localIndex*3+diseaseIndex)%8,
+    tasks:24+((localIndex+3)*(diseaseIndex+5)*13)%278,
+    version:versionLabels[(localIndex+diseaseIndex+1)%versionLabels.length],
+    versions:1+(localIndex+diseaseIndex+1)%4,
+    creator:'张海明',
+    createdAt:`2026/${String(4+Math.floor(diseaseIndex/3)).padStart(2,'0')}/${String(25-(localIndex%20)).padStart(2,'0')} ${String(8+(localIndex%9)).padStart(2,'0')}:${String(5+(localIndex*9)%50).padStart(2,'0')}:00`,
+    published:(localIndex+diseaseIndex)%9!==8,
+    enabled:(localIndex+diseaseIndex)%9!==8&&(localIndex+diseaseIndex)%7!==6
+  }))
+);
+
+const scaleRows=[...baseScaleRows,...supplementalScaleRows];
 
 scaleRows[0].children=[{
   ...scaleRows[0],
