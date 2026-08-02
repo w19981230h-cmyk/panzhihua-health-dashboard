@@ -467,6 +467,7 @@
 .recipe-status-options{
   display:flex;
   flex-wrap:wrap;
+  align-items:center;
   gap:10px;
 }
 
@@ -475,8 +476,8 @@
   cursor:pointer;
 }
 
-.recipe-disease-options input,
-.recipe-status-options input{
+.recipe-disease-options input[type="checkbox"],
+.recipe-status-options input[type="radio"]{
   position:absolute;
   opacity:0;
   pointer-events:none;
@@ -499,6 +500,43 @@
   border-color:#1747f5;
   background:#eef3ff;
   color:#1747f5;
+}
+
+.recipe-disease-entry{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+
+.recipe-disease-entry input{
+  width:220px;
+  height:38px;
+  padding:0 12px;
+  border:1px solid #dce2ec;
+  border-radius:5px;
+  outline:none;
+  color:#33425f;
+  background:#fff;
+}
+
+.recipe-disease-entry input[hidden],
+.recipe-disease-entry button[hidden]{
+  display:none;
+}
+
+.recipe-disease-entry input:focus{
+  border-color:#1747f5;
+  box-shadow:0 0 0 2px rgba(23,71,245,.08);
+}
+
+.recipe-disease-entry button{
+  height:38px;
+  padding:0 15px;
+  border:1px solid #1747f5;
+  border-radius:5px;
+  color:#1747f5;
+  background:#fff;
+  cursor:pointer;
 }
 
 .recipe-status-section{
@@ -1582,7 +1620,7 @@ th,
 
 /* 最终布局约束：避免历史规则覆盖新版食谱表单与列表 */
 .recipe-page .recipe-table{
-  min-width:1780px;
+  min-width:1570px;
   table-layout:fixed;
 }
 
@@ -1595,10 +1633,9 @@ th,
 .recipe-page .recipe-table th:nth-child(7),.recipe-page .recipe-table td:nth-child(7){width:105px;text-align:left}
 .recipe-page .recipe-table th:nth-child(8),.recipe-page .recipe-table td:nth-child(8){width:86px;text-align:left}
 .recipe-page .recipe-table th:nth-child(9),.recipe-page .recipe-table td:nth-child(9){width:86px;text-align:left}
-.recipe-page .recipe-table th:nth-child(10),.recipe-page .recipe-table td:nth-child(10){width:210px;text-align:left}
-.recipe-page .recipe-table th:nth-child(11),.recipe-page .recipe-table td:nth-child(11){width:85px;text-align:left}
-.recipe-page .recipe-table th:nth-child(12),.recipe-page .recipe-table td:nth-child(12){width:170px;text-align:left}
-.recipe-page .recipe-table th:nth-child(13),.recipe-page .recipe-table td:nth-child(13){width:100px;text-align:center;overflow:visible}
+.recipe-page .recipe-table th:nth-child(10),.recipe-page .recipe-table td:nth-child(10){width:85px;text-align:left}
+.recipe-page .recipe-table th:nth-child(11),.recipe-page .recipe-table td:nth-child(11){width:170px;text-align:left}
+.recipe-page .recipe-table th:nth-child(12),.recipe-page .recipe-table td:nth-child(12){width:100px;text-align:center;overflow:visible}
 
 #modalBackdrop .recipe-create-form{
   display:block;

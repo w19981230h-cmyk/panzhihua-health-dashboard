@@ -6,54 +6,79 @@ if (recipeStyleLink) {
   recipeStyleLink.href = recipeStyleUrl.href;
 }
 
-const recipeBaseRows = [
-  ['芹菜炒香干', '午餐', '菜品', ['高血压', '糖尿病'], 210, 16.8, 8.6, 19.5, true],
-  ['燕麦鸡蛋粥', '早餐', '主食', ['糖尿病'], 280, 13.2, 7.1, 42.6, true],
-  ['清蒸鲈鱼', '晚餐', '菜品', ['高血压', '高脂血症'], 230, 31.5, 8.2, 6.3, true],
-  ['杂粮饭', '午餐', '主食', ['糖尿病', '肥胖'], 180, 5.2, 1.8, 37.4, true],
-  ['菠菜豆腐汤', '晚餐', '汤羹', ['高血压'], 120, 9.6, 5.1, 8.7, false],
-  ['西兰花炒虾仁', '午餐', '菜品', ['高血压', '糖尿病'], 160, 22.4, 5.7, 9.8, true],
-  ['红豆薏米粥', '早餐', '主食', ['肥胖'], 190, 6.4, 1.5, 39.2, true],
-  ['香菇鸡胸肉', '午餐', '菜品', ['高脂血症', '肥胖'], 225, 32.6, 7.2, 10.3, true],
-  ['南瓜小米粥', '早餐', '主食', ['高血压'], 155, 4.1, 1.2, 33.8, true],
-  ['番茄炖牛腩', '晚餐', '菜品', ['高血压'], 310, 27.8, 16.5, 14.2, true],
-  ['无糖豆浆', '加餐', '饮品', ['糖尿病', '肥胖'], 86, 7.8, 3.6, 5.4, true],
-  ['冬瓜海带汤', '晚餐', '汤羹', ['高血压', '肥胖'], 95, 4.3, 2.1, 13.6, true]
+const recipeFoundations = [
+  { name:'清蒸鲈鱼', ingredient:'鲈鱼', amount:'180g', meal:'晚餐', category:'菜品', calories:205, protein:30.2, fat:6.8, carbs:4.6 },
+  { name:'香煎鸡胸', ingredient:'鸡胸肉', amount:'150g', meal:'午餐', category:'菜品', calories:228, protein:33.5, fat:7.1, carbs:5.2 },
+  { name:'番茄牛腩', ingredient:'牛腩', amount:'120g', meal:'晚餐', category:'菜品', calories:286, protein:25.7, fat:14.2, carbs:12.4 },
+  { name:'虾仁滑蛋', ingredient:'虾仁', amount:'100g', meal:'午餐', category:'菜品', calories:218, protein:24.6, fat:10.1, carbs:7.3 },
+  { name:'菌菇豆腐煲', ingredient:'北豆腐', amount:'150g', meal:'晚餐', category:'菜品', calories:168, protein:13.8, fat:7.5, carbs:12.8 },
+  { name:'燕麦杂粮粥', ingredient:'燕麦', amount:'45g', meal:'早餐', category:'主食', calories:176, protein:6.8, fat:3.1, carbs:32.6 },
+  { name:'藜麦糙米饭', ingredient:'藜麦糙米', amount:'80g', meal:'午餐', category:'主食', calories:244, protein:7.9, fat:2.8, carbs:48.5 },
+  { name:'荞麦鸡丝面', ingredient:'荞麦面', amount:'80g', meal:'午餐', category:'主食', calories:272, protein:18.4, fat:4.6, carbs:42.1 },
+  { name:'山药排骨汤', ingredient:'猪肋排', amount:'90g', meal:'晚餐', category:'汤羹', calories:238, protein:19.5, fat:12.7, carbs:11.3 },
+  { name:'无糖豆乳', ingredient:'黄豆', amount:'35g', meal:'加餐', category:'饮品', calories:118, protein:9.2, fat:5.1, carbs:8.4 }
 ];
 
-const ingredientPresets = [
-  [['芹菜', '150g'], ['香干', '80g']],
-  [['燕麦', '50g'], ['鸡蛋', '1个']],
-  [['鲈鱼', '200g'], ['姜丝', '5g']],
-  [['糙米', '50g'], ['小米', '30g']],
-  [['菠菜', '100g'], ['豆腐', '120g']],
-  [['西兰花', '150g'], ['虾仁', '100g']]
+const recipeCompanions = [
+  { name:'西兰花', amount:'100g', calories:27, protein:3.5, fat:.6, carbs:4.3 },
+  { name:'芦笋', amount:'100g', calories:22, protein:2.4, fat:.2, carbs:4.1 },
+  { name:'彩椒', amount:'80g', calories:24, protein:1.1, fat:.2, carbs:5.6 },
+  { name:'香菇', amount:'80g', calories:21, protein:2.2, fat:.3, carbs:4.8 },
+  { name:'芹菜', amount:'100g', calories:16, protein:.8, fat:.2, carbs:3.9 },
+  { name:'南瓜', amount:'100g', calories:23, protein:.7, fat:.1, carbs:5.3 },
+  { name:'玉米笋', amount:'100g', calories:29, protein:2.1, fat:.4, carbs:5.7 },
+  { name:'菠菜', amount:'100g', calories:24, protein:2.6, fat:.4, carbs:4.5 },
+  { name:'冬瓜', amount:'120g', calories:14, protein:.5, fat:.2, carbs:3.1 },
+  { name:'胡萝卜', amount:'80g', calories:26, protein:.7, fat:.2, carbs:6.2 }
 ];
 
 const recipeRows = Array.from({ length: 100 }, (_, index) => {
-  const seed = recipeBaseRows[index % recipeBaseRows.length];
-  const ingredients = ingredientPresets[index % ingredientPresets.length].map(([name, amount]) => ({ name, amount }));
+  const foundation = recipeFoundations[index % recipeFoundations.length];
+  const companion = recipeCompanions[Math.floor(index / recipeFoundations.length)];
+  const seasoning = index % 2 ? { name:'橄榄油', amount:'5g' } : { name:'亚麻籽油', amount:'5g' };
   return {
     id: `recipe-${index + 1}`,
-    name: index < recipeBaseRows.length ? seed[0] : `${seed[0]} ${String(index + 1).padStart(3, '0')}`,
-    meal: seed[1],
-    category: seed[2],
-    diseases: [...seed[3]],
-    calories: seed[4] + (index % 4) * 5,
-    protein: seed[5],
-    fat: seed[6],
-    carbs: seed[7],
-    enabled: index % 9 === 4 ? false : seed[8],
-    ingredients,
-    steps: `1. 准备${ingredients.map(item => item.name).join('、')}。\n2. 将食材处理后烹饪至熟，少油少盐调味。`,
+    name: `${foundation.name}配${companion.name}`,
+    meal: foundation.meal,
+    category: foundation.category,
+    calories: foundation.calories + companion.calories + 45,
+    protein: Number((foundation.protein + companion.protein).toFixed(1)),
+    fat: Number((foundation.fat + companion.fat + 5).toFixed(1)),
+    carbs: Number((foundation.carbs + companion.carbs).toFixed(1)),
+    enabled: index % 11 !== 6,
+    ingredients: [{ name:foundation.ingredient, amount:foundation.amount }, { name:companion.name, amount:companion.amount }, seasoning],
     image: '',
     thumb: index % 6 + 1,
     createdAt: `2024-05-${String(28 - index % 26).padStart(2, '0')} ${String(8 + index % 10).padStart(2, '0')}:${String(index % 6 * 10).padStart(2, '0')}`
   };
 });
 
+const recipeVariantGoals = ['低盐','低脂','高纤','均衡','轻食','控能','优蛋白','清爽','暖养','健脾','润燥','舒心','活力','家庭','长者','青年','午间','晚间','春季','夏季','秋季','冬季','门诊','随访','康复','日常'];
+const recipeVariantStyles = ['清蒸配方','清炖配方','快手配方','家常配方','控油配方','少盐配方','一人份配方','双人份配方','标准餐配方','轻量餐配方'];
+
+function materializeRecipeRow(source, virtualIndex, poolSize) {
+  const variant = Math.floor(virtualIndex / poolSize);
+  if (!variant) return source;
+  const goal = recipeVariantGoals[(variant - 1) % recipeVariantGoals.length];
+  const style = recipeVariantStyles[Math.floor((variant - 1) / recipeVariantGoals.length) % recipeVariantStyles.length];
+  const portionFactor = .86 + (variant % 9) * .03;
+  const adjustAmount = amount => String(amount).replace(/(\d+(?:\.\d+)?)g/, (_, value) => `${Math.max(1, Math.round(Number(value) * portionFactor))}g`);
+  return {
+    ...source,
+    id: `${source.id}-v${variant}`,
+    sourceId: source.id,
+    name: `${goal}${style}·${source.name}`,
+    ingredients: source.ingredients.map(item => ({ ...item, amount: adjustAmount(item.amount) })),
+    calories: Math.round(source.calories * portionFactor),
+    protein: Number((source.protein * portionFactor).toFixed(1)),
+    fat: Number((source.fat * portionFactor).toFixed(1)),
+    carbs: Number((source.carbs * portionFactor).toFixed(1)),
+    createdAt: `2024-${String(1 + (virtualIndex % 12)).padStart(2, '0')}-${String(1 + (virtualIndex % 28)).padStart(2, '0')} ${String(8 + virtualIndex % 11).padStart(2, '0')}:${String(virtualIndex % 6 * 10).padStart(2, '0')}`
+  };
+}
+
 const RECIPE_VIRTUAL_TOTAL = 25690;
-const recipeState = { query: '', meal: '', category: '', disease: '', enabled: '', page: 1, size: 10 };
+const recipeState = { query: '', meal: '', category: '', enabled: '', page: 1, size: 10 };
 
 function escapeRecipeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
@@ -97,7 +122,6 @@ function buildRecipePage() {
         </div></label>
         ${recipeSelect('餐次', 'recipeMeal', ['早餐', '午餐', '晚餐', '加餐'])}
         ${recipeSelect('食谱分类', 'recipeCategory', ['主食', '菜品', '汤羹', '饮品'])}
-        ${recipeSelect('适用病种', 'recipeDisease', ['高血压', '糖尿病', '高脂血症', '肥胖', '高尿酸血症'])}
         ${recipeSelect('状态', 'recipeEnabled', ['启用', '停用'])}
         <button class="recipe-column-button" id="recipeColumnButton" type="button" aria-label="管理显示列">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="13" height="17" rx="2"></rect><path d="M8 3v17m4-17v10"></path><circle cx="18" cy="17" r="4"></circle><path d="M18 15v4m-2-2h4"></path></svg>
@@ -108,7 +132,7 @@ function buildRecipePage() {
     <section class="recipe-list-card">
       <div class="recipe-table-wrap">
         <table class="recipe-table">
-          <thead><tr><th>食谱图片</th><th>食谱名称</th><th>餐次</th><th>食谱分类</th><th>食材及用量</th><th>热量(kcal)</th><th>蛋白质(g)</th><th>脂肪(g)</th><th>碳水(g)</th><th>适用病种</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+          <thead><tr><th>食谱图片</th><th>食谱名称</th><th>餐次</th><th>食谱分类</th><th>食材及用量</th><th>热量(kcal)</th><th>蛋白质(g)</th><th>脂肪(g)</th><th>碳水(g)</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
           <tbody id="recipeTableBody"></tbody>
         </table>
         <div class="recipe-empty" id="recipeEmpty" hidden>暂无符合条件的食谱</div>
@@ -173,7 +197,6 @@ function filteredRecipes() {
     (!query || row.name.toLowerCase().includes(query)) &&
     (!recipeState.meal || row.meal === recipeState.meal) &&
     (!recipeState.category || row.category === recipeState.category) &&
-    (!recipeState.disease || row.diseases.includes(recipeState.disease)) &&
     (!recipeState.enabled || (recipeState.enabled === '启用') === row.enabled)
   );
 }
@@ -199,16 +222,18 @@ function renderRecipes() {
   const totalPages = Math.max(1, Math.ceil(virtualTotal / recipeState.size));
   recipeState.page = Math.min(Math.max(1, recipeState.page), totalPages);
   const offset = (recipeState.page - 1) * recipeState.size;
-  const shown = rows.length ? Array.from({ length: recipeState.size }, (_, index) => rows[(offset + index) % rows.length]) : [];
+  const shown = rows.length ? Array.from({ length: Math.min(recipeState.size, Math.max(0, virtualTotal - offset)) }, (_, index) => {
+    const virtualIndex = offset + index;
+    return materializeRecipeRow(rows[virtualIndex % rows.length], virtualIndex, rows.length);
+  }) : [];
   recipeBody.innerHTML = shown.map(row => `
-    <tr data-recipe-id="${row.id}">
+    <tr data-recipe-id="${row.id}" data-recipe-source-id="${row.sourceId || row.id}">
       <td>${recipeImage(row)}</td>
       <td><strong class="recipe-title">${escapeRecipeHtml(row.name)}</strong></td>
       <td><span class="recipe-tag blue">${escapeRecipeHtml(row.meal || '--')}</span></td>
       <td><span class="recipe-tag green">${escapeRecipeHtml(row.category || '--')}</span></td>
       <td><div class="recipe-ingredients-summary" title="${escapeRecipeHtml(row.ingredients.map(item => `${item.name} ${item.amount}`).join('、'))}">${row.ingredients.map(item => `${escapeRecipeHtml(item.name)} ${escapeRecipeHtml(item.amount)}`).join('、')}</div></td>
       <td>${row.calories ?? '--'}</td><td>${row.protein ?? '--'}</td><td>${row.fat ?? '--'}</td><td>${row.carbs ?? '--'}</td>
-      <td><div class="recipe-disease-tags">${row.diseases.length ? row.diseases.map(value => `<span>${escapeRecipeHtml(value)}</span>`).join('') : '--'}</div></td>
       <td><span class="recipe-status ${row.enabled ? 'active' : 'inactive'}"><i aria-hidden="true"></i>${row.enabled ? '启用' : '停用'}</span></td>
       <td>${escapeRecipeHtml(row.createdAt)}</td>
       <td><div class="recipe-actions"><button class="recipe-more-actions" type="button" data-recipe-more aria-expanded="false">更多<i></i></button><div class="recipe-action-menu" hidden>
@@ -264,7 +289,6 @@ function openRecipeForm(editRow = null) {
   const body = document.querySelector('#modalBody');
   modal.classList.add('recipe-form-modal');
   document.querySelector('#modalTitle').textContent = editRow ? '编辑食谱' : '新建食谱';
-  const diseases = ['高血压', '糖尿病', '高脂血症', '肥胖', '高尿酸血症'];
   const currentIngredients = editRow?.ingredients?.length ? editRow.ingredients : [{ name: '', amount: '' }];
   body.innerHTML = `<form class="recipe-create-form" id="recipeCreateForm" novalidate>
     <section class="recipe-form-section recipe-basic-section"><h3>基本信息</h3><div class="recipe-form-grid">
@@ -280,8 +304,6 @@ function openRecipeForm(editRow = null) {
       <label class="recipe-field"><span>脂肪（g）</span><input name="fat" type="number" min="0" step="0.1" value="${editRow?.fat ?? ''}" placeholder="请输入"></label>
       <label class="recipe-field"><span>碳水（g）</span><input name="carbs" type="number" min="0" step="0.1" value="${editRow?.carbs ?? ''}" placeholder="请输入"></label>
     </div></section>
-    <section class="recipe-form-section"><h3>适用病种 <span class="recipe-optional">（可多选）</span></h3><div class="recipe-disease-options">${diseases.map(value => `<label><input type="checkbox" name="diseases" value="${value}" ${editRow?.diseases?.includes(value) ? 'checked' : ''}><span>${value}</span></label>`).join('')}</div></section>
-    <section class="recipe-form-section recipe-required-section"><label class="recipe-field"><span><b>*</b>制作步骤</span><textarea name="steps" required maxlength="2000" rows="5" placeholder="请输入制作步骤，可按序号分步描述">${escapeRecipeHtml(editRow?.steps || '')}</textarea><small data-error-for="steps"></small></label></section>
     <section class="recipe-form-section recipe-status-section"><div class="recipe-field"><span><b>*</b>状态</span><div class="recipe-status-options"><label><input type="radio" name="enabled" value="true" ${(editRow?.enabled ?? true) ? 'checked' : ''}><span>启用</span></label><label><input type="radio" name="enabled" value="false" ${editRow && !editRow.enabled ? 'checked' : ''}><span>停用</span></label></div></div></section>
     <div class="recipe-form-actions"><button type="button" data-recipe-cancel>取消</button><button class="primary" type="submit">${editRow ? '保存修改' : '保存食谱'}</button></div>
   </form>`;
@@ -314,13 +336,11 @@ function openRecipeForm(editRow = null) {
   form.addEventListener('submit', event => {
     event.preventDefault();
     const name = form.elements.name.value.trim();
-    const steps = form.elements.steps.value.trim();
     const ingredientNames = [...form.querySelectorAll('[name="ingredientName"]')];
     const ingredientAmounts = [...form.querySelectorAll('[name="ingredientAmount"]')];
     let valid = true;
     form.querySelector('[data-error-for="name"]').textContent = name ? '' : '请输入食谱名称';
-    form.querySelector('[data-error-for="steps"]').textContent = steps ? '' : '请输入制作步骤';
-    if (!name || !steps) valid = false;
+    if (!name) valid = false;
     const ingredients = ingredientNames.map((input, index) => ({ name: input.value.trim(), amount: ingredientAmounts[index].value.trim() }));
     const ingredientsValid = ingredients.length && ingredients.every(item => item.name && item.amount);
     form.querySelector('[data-ingredient-error]').textContent = ingredientsValid ? '' : '请完整填写食材名称和用量';
@@ -339,8 +359,6 @@ function openRecipeForm(editRow = null) {
       category: String(data.get('category') || ''),
       ingredients,
       calories: numberOrEmpty('calories'), protein: numberOrEmpty('protein'), fat: numberOrEmpty('fat'), carbs: numberOrEmpty('carbs'),
-      diseases: data.getAll('diseases').map(String),
-      steps,
       enabled: data.get('enabled') === 'true',
       createdAt: editRow?.createdAt || new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-')
     };
@@ -356,12 +374,12 @@ function openRecipeDetail(row) {
   const backdrop = document.querySelector('#modalBackdrop');
   backdrop.querySelector('.modal').classList.add('recipe-detail-modal');
   document.querySelector('#modalTitle').textContent = '食谱详情';
-  document.querySelector('#modalBody').innerHTML = `<div class="recipe-detail"><div class="recipe-detail-hero">${recipeImage(row)}<div><h3>${escapeRecipeHtml(row.name)}</h3><p>${escapeRecipeHtml(row.meal || '--')} · ${escapeRecipeHtml(row.category || '--')} · ${row.enabled ? '启用' : '停用'}</p></div></div><dl><dt>食材及用量</dt><dd>${row.ingredients.map(item => `${escapeRecipeHtml(item.name)} ${escapeRecipeHtml(item.amount)}`).join('、')}</dd><dt>营养信息</dt><dd>热量 ${row.calories || '--'} kcal　蛋白质 ${row.protein || '--'} g　脂肪 ${row.fat || '--'} g　碳水 ${row.carbs || '--'} g</dd><dt>适用病种</dt><dd>${row.diseases.join('、') || '--'}</dd><dt>制作步骤</dt><dd class="recipe-detail-steps">${escapeRecipeHtml(row.steps).replaceAll('\n', '<br>')}</dd></dl></div>`;
+  document.querySelector('#modalBody').innerHTML = `<div class="recipe-detail"><div class="recipe-detail-hero">${recipeImage(row)}<div><h3>${escapeRecipeHtml(row.name)}</h3><p>${escapeRecipeHtml(row.meal || '--')} · ${escapeRecipeHtml(row.category || '--')} · ${row.enabled ? '启用' : '停用'}</p></div></div><dl><dt>食材及用量</dt><dd>${row.ingredients.map(item => `${escapeRecipeHtml(item.name)} ${escapeRecipeHtml(item.amount)}`).join('、')}</dd><dt>营养信息</dt><dd>热量 ${row.calories || '--'} kcal　蛋白质 ${row.protein || '--'} g　脂肪 ${row.fat || '--'} g　碳水 ${row.carbs || '--'} g</dd></dl></div>`;
   backdrop.classList.add('show');
 }
 
 recipePage.querySelector('#recipeSearch').addEventListener('input', event => { recipeState.query = event.target.value; recipeState.page = 1; renderRecipes(); });
-[['recipeMeal', 'meal'], ['recipeCategory', 'category'], ['recipeDisease', 'disease'], ['recipeEnabled', 'enabled']].forEach(([id, key]) => recipePage.querySelector(`#${id}`).addEventListener('change', event => { recipeState[key] = event.target.value; recipeState.page = 1; renderRecipes(); }));
+[['recipeMeal', 'meal'], ['recipeCategory', 'category'], ['recipeEnabled', 'enabled']].forEach(([id, key]) => recipePage.querySelector(`#${id}`).addEventListener('change', event => { recipeState[key] = event.target.value; recipeState.page = 1; renderRecipes(); }));
 recipePage.querySelector('#recipePrevPage').addEventListener('click', () => { if (recipeState.page > 1) { recipeState.page -= 1; renderRecipes(); } });
 recipePage.querySelector('#recipeNextPage').addEventListener('click', () => { if (recipeState.page < recipePageCount()) { recipeState.page += 1; renderRecipes(); } });
 recipePage.querySelector('#recipePageNumbers').addEventListener('click', event => { const button = event.target.closest('[data-recipe-page]'); if (button) { recipeState.page = Number(button.dataset.recipePage); renderRecipes(); } });
@@ -382,13 +400,13 @@ recipeBody.addEventListener('click', event => {
   const actionButton = event.target.closest('[data-recipe-action]');
   if (!actionButton) return;
   const rowElement = actionButton.closest('tr');
-  const row = recipeRows.find(item => item.id === rowElement.dataset.recipeId);
+  const row = recipeRows.find(item => item.id === rowElement.dataset.recipeSourceId);
   if (!row) return;
   actionButton.closest('.recipe-action-menu').hidden = true;
   const action = actionButton.dataset.recipeAction;
   if (action === '查看') openRecipeDetail(row);
   if (action === '编辑') openRecipeForm(row);
-  if (action === '复制') { recipeRows.unshift({ ...row, id: `recipe-${Date.now()}`, name: `${row.name} 副本`, diseases: [...row.diseases], ingredients: row.ingredients.map(item => ({ ...item })), createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-') }); recipeState.page = 1; renderRecipes(); showRecipeToast('食谱复制成功'); }
+  if (action === '复制') { recipeRows.unshift({ ...row, id: `recipe-${Date.now()}`, name: `${row.name} 副本`, ingredients: row.ingredients.map(item => ({ ...item })), createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-') }); recipeState.page = 1; renderRecipes(); showRecipeToast('食谱复制成功'); }
   if (action === '启用' || action === '停用') { row.enabled = action === '启用'; renderRecipes(); showRecipeToast(`已${action}“${row.name}”`); }
   if (action === '删除') { const index = recipeRows.indexOf(row); if (index >= 0) recipeRows.splice(index, 1); renderRecipes(); showRecipeToast('食谱已删除'); }
 });

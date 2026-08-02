@@ -1,4 +1,4 @@
-const medicalScaleCatalog = [
+const legacyMedicalScaleCatalog = [
   ['高血压',[
     '高血压患者随访管理量表',
     'ASCVD汇总队列方程（PCE）10年风险评估',
@@ -97,17 +97,86 @@ const medicalScaleCatalog = [
   ]]
 ];
 
-const scaleRows=medicalScaleCatalog.flatMap(([disease,names])=>names.map((scaleName,localIndex)=>({
+const medicalScaleCatalog = [
+  ['高血压',[
+    '国家基本公共卫生高血压患者随访服务记录表','家庭血压监测7日记录表','诊室血压规范测量记录表',
+    '高血压分级与心血管危险分层评估','ASCVD汇总队列方程（PCE）10年风险评估','Hill-Bone高血压治疗依从性量表',
+    '高血压自我照护量表（HBP-SCP）','高血压知识水平量表（HK-LS）','Morisky用药依从性量表8项版（MMAS-8）',
+    '国际体力活动问卷短版（IPAQ-SF）','匹兹堡睡眠质量指数（PSQI）','患者健康问卷抑郁量表（PHQ-9）',
+    '广泛性焦虑障碍量表（GAD-7）','世界卫生组织幸福感指数（WHO-5）'
+  ]],
+  ['糖尿病',[
+    '芬兰糖尿病风险评分（FINDRISC）','ADA 2型糖尿病风险测试','国家基本公共卫生2型糖尿病患者随访服务记录表',
+    '糖尿病自我管理行为量表（SDSCA）','糖尿病痛苦量表17项版（DDS-17）','糖尿病问题领域量表（PAID）',
+    '糖尿病赋能量表短版（DES-SF）','糖尿病知识问卷24项版（DKQ-24）','糖尿病特异性生活质量量表（ADDQoL-19）',
+    '低血糖恐惧量表Ⅱ（HFS-II）','Clarke低血糖感知受损问卷','密歇根糖尿病神经病变筛查量表（MNSI）',
+    '糖尿病足溃疡风险分级评估','糖尿病治疗满意度问卷（DTSQ）','患者健康问卷抑郁量表（PHQ-9）'
+  ]],
+  ['慢阻肺',[
+    '慢性阻塞性肺疾病评估测试（CAT）','改良英国医学研究委员会呼吸困难量表（mMRC）','临床COPD问卷（CCQ）',
+    '圣乔治呼吸问卷（SGRQ）','BODE多维预后指数','ADO预后指数','DOSE疾病严重度指数','DECAF急性加重死亡风险评分',
+    'COPD急性加重症状日记（EXACT-PRO）','慢阻肺急性加重风险评估表','吸入装置使用技术评估清单',
+    '医院焦虑抑郁量表（HADS）','匹兹堡睡眠质量指数（PSQI）'
+  ]],
+  ['慢性肾脏病',[
+    '肾脏疾病生活质量量表（KDQOL-36）','慢性肾病自我管理量表（CKD-SM）','肾脏疾病知识调查量表（KiKS）',
+    '肾脏疾病自我效能问卷（KSEQ）','CKD-EPI估算肾小球滤过率评估','肾衰竭风险方程（KFRE）','透析症状指数（DSI）',
+    '埃德蒙顿症状评估系统肾病版（ESAS-r:Renal）','营养不良-炎症评分（MIS）','主观全面营养评估（SGA）',
+    'FRAIL衰弱筛查量表','5-D瘙痒量表','透析患者液体摄入依从性量表','慢性肾病抑郁筛查量表（PHQ-9）'
+  ]],
+  ['冠心病',[
+    '西雅图心绞痛量表19项版（SAQ-19）','西雅图心绞痛量表简版（SAQ-7）','加拿大心血管学会心绞痛分级（CCS）',
+    '杜克活动状态指数（DASI）','Rose心绞痛问卷','MacNew心脏病生活质量问卷','HeartQoL缺血性心脏病生活质量量表',
+    'GRACE 2.0急性冠脉综合征风险评分','TIMI不稳定心绞痛/NSTEMI风险评分','EuroQol五维健康量表（EQ-5D-5L）',
+    '心脏康复运动风险分层评估','患者健康问卷抑郁量表（PHQ-9）','广泛性焦虑障碍量表（GAD-7）'
+  ]],
+  ['脑卒中',[
+    '美国国立卫生研究院卒中量表（NIHSS）','改良美国国立卫生研究院卒中量表（mNIHSS）','改良Rankin量表（mRS）',
+    'Barthel指数（BI）','Fugl-Meyer运动功能评定量表（FMA）','Berg平衡量表（BBS）','蒙特利尔认知评估量表（MoCA）',
+    '卒中影响量表（SIS）','进食评估工具10项版（EAT-10）','卒中后抑郁筛查量表（PHQ-9）','洼田饮水试验',
+    'Morse跌倒风险评估量表','简易营养评价法短表（MNA-SF）','Zarit照顾者负担量表（ZBI）','卒中患者自我效能量表（SSEQ）'
+  ]],
+  ['肺癌',[
+    '欧洲癌症研究与治疗组织生命质量核心量表（EORTC QLQ-C30）','肺癌特异生命质量量表（EORTC QLQ-LC13）',
+    '癌症治疗功能评价肺癌量表（FACT-L）','安德森症状评估量表肺癌模块（MDASI-LC）','美国东部肿瘤协作组体力状况评分（ECOG-PS）',
+    'Karnofsky功能状态评分（KPS）','数字疼痛评分量表（NRS）','患者主观整体营养评估（PG-SGA）',
+    '医院焦虑抑郁量表（HADS）','肺癌患者症状负担量表（LCSS）','患者报告结局不良事件标准（PRO-CTCAE）',
+    'Fagerström尼古丁依赖测试（FTND）'
+  ]],
+  ['结直肠癌',[
+    '欧洲癌症研究与治疗组织生命质量核心量表（EORTC QLQ-C30）','结直肠癌特异生命质量量表（EORTC QLQ-CR29）',
+    '癌症治疗功能评价结直肠癌量表（FACT-C）','低位前切除综合征评分（LARS）','Wexner肛门失禁评分','Bristol大便性状量表',
+    '美国东部肿瘤协作组体力状况评分（ECOG-PS）','患者主观整体营养评估（PG-SGA）','数字疼痛评分量表（NRS）',
+    '医院焦虑抑郁量表（HADS）','造口患者自我效能量表（SSES）','造口生活质量量表（Stoma-QOL）',
+    '患者报告结局不良事件标准（PRO-CTCAE）'
+  ]],
+  ['超重/肥胖',[
+    '埃德蒙顿肥胖分期系统（EOSS）','EOSS-2肥胖并发症风险筛查工具','成人体重指数（BMI）肥胖分级评估',
+    '腰围与中心性肥胖风险分层评估','体重对生活质量影响量表简版（IWQOL-Lite）','三因素饮食问卷修订18项版（TFEQ-R18）',
+    '暴食量表（BES）','荷兰进食行为问卷（DEBQ）','耶鲁食物成瘾量表2.0（YFAS 2.0）',
+    '体重管理自我效能生活方式问卷短版（WEL-SF）','STOP-Bang阻塞性睡眠呼吸暂停筛查问卷',
+    '国际体力活动问卷短版（IPAQ-SF）','患者健康问卷抑郁量表（PHQ-9）','24小时膳食回顾调查表'
+  ]]
+];
+
+const scaleCreators={
+  高血压:['李晓蓉','王建国','陈雪梅'],糖尿病:['周敏','刘蓉','何志强'],慢阻肺:['杨军','罗芳','张涛'],
+  慢性肾脏病:['杜琳','蒋伟','赵倩'],冠心病:['徐明','郭静','韩磊'],脑卒中:['郑华','冯雨','邓凯'],
+  肺癌:['唐丽','宋健','彭欣'],结直肠癌:['吴涛','秦芳','谢晨'],'超重/肥胖':['林佳','马莉','叶青']
+};
+const versionLabels=['V1.0','V1.1','V2.0','V2.1'];
+
+const scaleRows=medicalScaleCatalog.flatMap(([disease,names],diseaseIndex)=>names.map((scaleName,localIndex)=>({
   disease,
   name:`【${disease}】${scaleName}`,
-  plans:(localIndex+disease.length)%6,
-  tasks:(localIndex*2+disease.length)%9,
-  version:`第${localIndex%3+1}版`,
-  versions:localIndex%3+1,
-  creator:'张海明',
-  createdAt:`2026/${String(7-Math.floor(medicalScaleCatalog.findIndex(item=>item[0]===disease)/2)).padStart(2,'0')}/${String(24-localIndex).padStart(2,'0')} ${String(9+localIndex%8).padStart(2,'0')}:${String(12+localIndex*4).padStart(2,'0')}:00`,
-  published:localIndex!==9,
-  enabled:localIndex%5!==4
+  plans:1+(localIndex*2+diseaseIndex)%7,
+  tasks:18+((localIndex+2)*(diseaseIndex+4)*11)%286,
+  version:versionLabels[(localIndex+diseaseIndex)%versionLabels.length],
+  versions:1+(localIndex+diseaseIndex)%4,
+  creator:scaleCreators[disease][localIndex%scaleCreators[disease].length],
+  createdAt:`2026/${String(7-Math.floor(diseaseIndex/3)).padStart(2,'0')}/${String(26-(localIndex%18)).padStart(2,'0')} ${String(8+(localIndex%9)).padStart(2,'0')}:${String(10+(localIndex*7)%50).padStart(2,'0')}:00`,
+  published:localIndex<names.length-1,
+  enabled:localIndex<names.length-1&&localIndex%6!==5
 })));
 
 scaleRows[0].children=[{
@@ -117,7 +186,7 @@ scaleRows[0].children=[{
   children:undefined
 }];
 
-const scaleState = {query:'',page:1,size:10,expanded:new Set([0])};
+const scaleState = {query:'',disease:'',page:1,size:20,expanded:new Set([0])};
 
 function buildScalePage(){
   const page=document.createElement('section');
@@ -130,6 +199,12 @@ function buildScalePage(){
         <label class="scale-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 4.5 4.5"></path></svg>
           <input id="scaleSearch" type="search" placeholder="搜索名称" autocomplete="off">
+        </label>
+        <label class="scale-disease-filter">
+          <select id="scaleDiseaseFilter" aria-label="按病种筛选">
+            <option value="">全部病种（${scaleRows.length}）</option>
+            ${medicalScaleCatalog.map(([disease,names])=>`<option value="${disease}">${disease}（${names.length}）</option>`).join('')}
+          </select><i aria-hidden="true"></i>
         </label>
         <button class="scale-column-button" type="button" aria-label="管理显示列">
           <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-columns"></use></svg>
@@ -153,11 +228,11 @@ function buildScalePage(){
         <div class="scale-empty" id="scaleEmpty" hidden>暂无符合条件的量表</div>
       </div>
       <footer class="scale-pagination">
-        <span id="scaleTotal">共 80 条</span>
+        <span id="scaleTotal">共 ${scaleRows.length} 条</span>
         <button class="scale-page-arrow" id="scalePrev" type="button" aria-label="上一页">‹</button>
         <div class="scale-page-numbers" id="scalePageNumbers"></div>
         <button class="scale-page-arrow" id="scaleNext" type="button" aria-label="下一页">›</button>
-        <label class="scale-size"><select aria-label="每页条数"><option value="10">10 条/页</option></select><i></i></label>
+        <label class="scale-size"><select aria-label="每页条数"><option value="20">20 条/页</option></select><i></i></label>
         <span>跳至</span><input id="scaleJump" type="number" min="1" aria-label="跳转页码"><span>页</span>
       </footer>
     </section>`;
@@ -206,6 +281,7 @@ function filteredScales(){
   const query=scaleState.query.trim().toLowerCase();
   const diseaseMatch=medicalScaleCatalog.find(([disease])=>disease.toLowerCase()===query);
   return scaleRows.map((row,index)=>({row,index})).filter(({row})=>{
+    if(scaleState.disease&&row.disease!==scaleState.disease)return false;
     if(!query)return true;
     if(diseaseMatch)return row.disease.toLowerCase()===query;
     return row.name.toLowerCase().includes(query);
@@ -266,6 +342,12 @@ function setScaleMode(enabled){
 
 scalePage.querySelector('#scaleSearch').addEventListener('input',event=>{
   scaleState.query=event.target.value;
+  scaleState.page=1;
+  renderScales();
+});
+
+scalePage.querySelector('#scaleDiseaseFilter').addEventListener('change',event=>{
+  scaleState.disease=event.target.value;
   scaleState.page=1;
   renderScales();
 });

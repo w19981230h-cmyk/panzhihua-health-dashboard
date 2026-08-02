@@ -8,7 +8,8 @@ const port = Number(process.argv[2]) || 8768;
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8' };
 createServer(async (req, res) => {
   try {
-    const path = req.url === '/' ? 'index.html' : req.url.split('?')[0].slice(1);
+    const pathname = new URL(req.url, 'http://127.0.0.1').pathname;
+    const path = pathname === '/' ? 'index.html' : decodeURIComponent(pathname.slice(1));
     const data = await readFile(join(root, path));
     res.writeHead(200, { 'Content-Type': types[extname(path)] || 'application/octet-stream' });
     res.end(data);
