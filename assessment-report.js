@@ -62,7 +62,7 @@ const assessmentDiseaseCatalog = [
 ];
 
 const assessmentScenes=['','（初筛）','（年度随访）','（重点人群）'];
-const assessmentReports=Array.from({length:200},(_,index)=>{
+const assessmentReports=Array.from({length:358},(_,index)=>{
   const catalog=assessmentDiseaseCatalog[index%assessmentDiseaseCatalog.length];
   const sequence=Math.floor(index/assessmentDiseaseCatalog.length);
   const [theme,dimension]=catalog.themes[sequence%catalog.themes.length];
@@ -79,7 +79,7 @@ const assessmentReports=Array.from({length:200},(_,index)=>{
   };
 });
 
-const assessmentState = {query:'', output:'', status:'', page:1, size:10};
+const assessmentState = {query:'', output:'', status:'', page:1, size:20};
 
 function buildAssessmentReportPage(){
   const page=document.createElement('section');
@@ -128,11 +128,11 @@ function buildAssessmentReportPage(){
         <div class="assessment-empty" id="assessmentEmpty" hidden>暂无符合条件的评估报告</div>
       </div>
       <footer class="assessment-pagination">
-        <span id="assessmentTotal">共 200 条</span>
+        <span id="assessmentTotal">共 358 条</span>
         <button class="assessment-page-arrow" id="assessmentPrev" type="button" aria-label="上一页">‹</button>
         <div class="assessment-page-numbers" id="assessmentPageNumbers"></div>
         <button class="assessment-page-arrow" id="assessmentNext" type="button" aria-label="下一页">›</button>
-        <label class="assessment-size"><select aria-label="每页条数"><option value="10">10 条/页</option></select><i></i></label>
+        <label class="assessment-size"><select id="assessmentPageSize" aria-label="每页条数"><option value="10">10 条/页</option><option value="20" selected>20 条/页</option></select><i></i></label>
       </footer>
     </section>`;
   document.querySelector('.main-content').appendChild(page);
@@ -295,6 +295,11 @@ assessmentPage.querySelector('#assessmentNext').addEventListener('click',()=>{
 assessmentPage.querySelector('#assessmentPageNumbers').addEventListener('click',event=>{
   const button=event.target.closest('[data-assessment-page]');
   if(button){assessmentState.page=Number(button.dataset.assessmentPage);renderAssessmentReports()}
+});
+assessmentPage.querySelector('#assessmentPageSize').addEventListener('change',event=>{
+  assessmentState.size=Number(event.target.value);
+  assessmentState.page=1;
+  renderAssessmentReports();
 });
 
 document.querySelectorAll('.subnav button').forEach(button=>button.addEventListener('click',()=>setAssessmentReportMode(button.dataset.page==='评估报告')));

@@ -226,7 +226,7 @@ function buildScalePage(){
         <button class="scale-page-arrow" id="scalePrev" type="button" aria-label="上一页">‹</button>
         <div class="scale-page-numbers" id="scalePageNumbers"></div>
         <button class="scale-page-arrow" id="scaleNext" type="button" aria-label="下一页">›</button>
-        <label class="scale-size"><select aria-label="每页条数"><option value="20">20 条/页</option></select><i></i></label>
+        <label class="scale-size"><select id="scalePageSize" aria-label="每页条数"><option value="10">10 条/页</option><option value="20" selected>20 条/页</option></select><i></i></label>
         <span>跳至</span><input id="scaleJump" type="number" min="1" aria-label="跳转页码"><span>页</span>
       </footer>
     </section>`;
@@ -399,6 +399,11 @@ scalePage.querySelector('#scaleNext').addEventListener('click',()=>{
 scalePage.querySelector('#scalePageNumbers').addEventListener('click',event=>{
   const button=event.target.closest('[data-scale-page]');
   if(button){scaleState.page=Number(button.dataset.scalePage);renderScales()}
+});
+scalePage.querySelector('#scalePageSize').addEventListener('change',event=>{
+  scaleState.size=Number(event.target.value);
+  scaleState.page=1;
+  renderScales();
 });
 scalePage.querySelector('#scaleJump').addEventListener('change',event=>{
   const pages=Math.max(1,Math.ceil(filteredScales().length/scaleState.size));

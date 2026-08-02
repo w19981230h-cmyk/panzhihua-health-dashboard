@@ -135,6 +135,7 @@ function buildArticlePage() {
         <label class="article-size">
           <select id="articlePageSize" aria-label="每页条数">
             <option value="10">10 条/页</option>
+            <option value="20">20 条/页</option>
           </select><i aria-hidden="true"></i>
         </label>
         <span>跳至</span>
@@ -252,6 +253,12 @@ articlePage.querySelector('#articleNext').addEventListener('click', () => {
     articleState.page += 1;
     renderArticles();
   }
+});
+
+articlePage.querySelector('#articlePageSize').addEventListener('change', event => {
+  articleState.size = Number(event.target.value);
+  articleState.page = 1;
+  renderArticles();
 });
 
 articlePage.querySelector('#articleJump').addEventListener('change', event => {

@@ -223,7 +223,7 @@ function buildPublicHealthTaskPage() {
       </div>
       <footer class="ph-pagination">
         <span id="phTaskTotal"></span><button id="phTaskPrev" type="button">‹</button><div id="phTaskPages"></div><button id="phTaskNext" type="button">›</button>
-        <select disabled><option>20 条/页</option></select><span>跳至</span><input id="phTaskJump" type="number" min="1"><span>页</span>
+        <select id="phTaskPageSize" aria-label="每页条数"><option value="10">10 条/页</option><option value="20" selected>20 条/页</option></select><span>跳至</span><input id="phTaskJump" type="number" min="1"><span>页</span>
       </footer>
     </section>
     <div class="ph-drawer-mask" id="phTaskDrawer" hidden>
@@ -275,7 +275,7 @@ function buildPublicHealthStatsPage() {
       </div>
       <footer class="ph-pagination">
         <span id="phStatTotal"></span><button id="phStatPrev" type="button">‹</button><div id="phStatPages"></div><button id="phStatNext" type="button">›</button>
-        <select disabled><option>20 条/页</option></select><span>跳至</span><input id="phStatJump" type="number" min="1"><span>页</span>
+        <select id="phStatPageSize" aria-label="每页条数"><option value="10">10 条/页</option><option value="20" selected>20 条/页</option></select><span>跳至</span><input id="phStatJump" type="number" min="1"><span>页</span>
       </footer>
     </section>`;
   document.querySelector('.main-content').appendChild(page);
@@ -608,6 +608,7 @@ phTaskPage.querySelector('#phTaskStatusTabs').addEventListener('click', event =>
 phTaskPage.querySelector('#phTaskPages').addEventListener('click', event => { const button=event.target.closest('[data-task-page]'); if(!button)return; phTaskState.page=Number(button.dataset.taskPage); renderPublicHealthTasks(); });
 phTaskPage.querySelector('#phTaskPrev').addEventListener('click',()=>{if(phTaskState.page>1){phTaskState.page-=1;renderPublicHealthTasks();}});
 phTaskPage.querySelector('#phTaskNext').addEventListener('click',()=>{const pages=Math.ceil(filteredPublicHealthTasks().length/phTaskState.size);if(phTaskState.page<pages){phTaskState.page+=1;renderPublicHealthTasks();}});
+phTaskPage.querySelector('#phTaskPageSize').addEventListener('change',event=>{phTaskState.size=Number(event.target.value);phTaskState.page=1;renderPublicHealthTasks();});
 phTaskPage.querySelector('#phTaskJump').addEventListener('change',event=>{const pages=Math.max(1,Math.ceil(filteredPublicHealthTasks().length/phTaskState.size));phTaskState.page=Math.min(pages,Math.max(1,Number(event.target.value)||1));event.target.value='';renderPublicHealthTasks();});
 phTaskPage.querySelector('#phTaskExport').addEventListener('click',()=>phShowToast('公卫任务清单已导出'));
 phTaskPage.querySelector('#phTaskBody').addEventListener('click', event => {
@@ -690,6 +691,7 @@ phStatsPage.querySelector('#phStatRefresh').addEventListener('click',event=>{
 phStatsPage.querySelector('#phStatPages').addEventListener('click',event=>{const button=event.target.closest('[data-stat-page]');if(!button)return;phStatState.page=Number(button.dataset.statPage);renderPublicHealthStats();});
 phStatsPage.querySelector('#phStatPrev').addEventListener('click',()=>{if(phStatState.page>1){phStatState.page-=1;renderPublicHealthStats();}});
 phStatsPage.querySelector('#phStatNext').addEventListener('click',()=>{const pages=Math.ceil(filteredPublicHealthStats().length/phStatState.size);if(phStatState.page<pages){phStatState.page+=1;renderPublicHealthStats();}});
+phStatsPage.querySelector('#phStatPageSize').addEventListener('change',event=>{phStatState.size=Number(event.target.value);phStatState.page=1;renderPublicHealthStats();});
 phStatsPage.querySelector('#phStatJump').addEventListener('change',event=>{const pages=Math.max(1,Math.ceil(filteredPublicHealthStats().length/phStatState.size));phStatState.page=Math.min(pages,Math.max(1,Number(event.target.value)||1));event.target.value='';renderPublicHealthStats();});
 phStatsPage.querySelector('#phStatExport').addEventListener('click',()=>phShowToast('公卫纳管明细已导出'));
 phStatsPage.querySelector('#phStatBody').addEventListener('click',event=>{const button=event.target.closest('[data-stat-action="查看"]');if(!button)return;const row=publicHealthStats.find(item=>item.id===Number(button.dataset.id));document.querySelector('#modalTitle').textContent=`${row.organization} · 公卫统计详情`;document.querySelector('#modalBody').innerHTML=`<dl class="record-grid"><div><dt>统计日期</dt><dd>${row.date}</dd></div><div><dt>所属区域</dt><dd>${row.region}</dd></div><div class="wide"><dt>医疗集团</dt><dd>${row.medicalGroup}</dd></div><div class="wide"><dt>机构 / 团队</dt><dd>${row.organization} / ${row.team}</dd></div><div><dt>数据回流</dt><dd>${row.total.toLocaleString('zh-CN')} 人</dd></div><div><dt>自动识别</dt><dd>${row.autoIdentified.toLocaleString('zh-CN')} 人</dd></div><div><dt>已生成任务</dt><dd>${row.generated.toLocaleString('zh-CN')} 项</dd></div><div><dt>已完成任务</dt><dd>${row.completed.toLocaleString('zh-CN')} 项</dd></div><div><dt>纳管成功</dt><dd>${row.managed.toLocaleString('zh-CN')} 人</dd></div><div><dt>任务完成率</dt><dd>${(row.completed/Math.max(1,row.generated)*100).toFixed(1)}%</dd></div></dl>`;document.querySelector('#modalBackdrop').classList.add('show');});

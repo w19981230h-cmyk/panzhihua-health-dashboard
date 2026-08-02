@@ -139,7 +139,7 @@ function buildRecipePage() {
       </div>
       <footer class="recipe-pagination"><span id="recipeTotal">共 25,690 条</span><div class="recipe-pages">
         <button class="recipe-page-arrow" id="recipePrevPage" type="button" disabled>‹</button><div class="recipe-page-numbers" id="recipePageNumbers"></div><button class="recipe-page-arrow" id="recipeNextPage" type="button">›</button>
-        <label class="recipe-size"><select id="recipePageSize" aria-label="每页条数"><option value="10">10条/页</option><option value="20">20条/页</option></select><i></i></label><span>跳至</span><input id="recipeJumpPage" type="number" min="1" aria-label="跳转页码"><span>页</span>
+        <label class="recipe-size"><select id="recipePageSize" aria-label="每页条数"><option value="10">10 条/页</option><option value="20">20 条/页</option></select><i></i></label><span>跳至</span><input id="recipeJumpPage" type="number" min="1" aria-label="跳转页码"><span>页</span>
       </div></footer>
     </section>`;
   document.querySelector('.main-content').appendChild(page);
